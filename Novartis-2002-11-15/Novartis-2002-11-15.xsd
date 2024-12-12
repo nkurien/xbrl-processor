@@ -1,0 +1,174 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- Taxonomy based on XBRL standard v.2.  Created by UBmatrix Taxonomy Builder 5.0.76.  Contact www.ubmatrix.com -->
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:xbrli="http://www.xbrl.org/2001/instance" xmlns:link="http://www.xbrl.org/2001/XLink/xbrllinkbase" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:novartis="http://www.xbrl.org/taxonomy/int/fr/ias/pfs/2002-11-15/Novartis-2002-11-15" targetNamespace="http://www.xbrl.org/taxonomy/int/fr/ias/pfs/2002-11-15/Novartis-2002-11-15" elementFormDefault="qualified">
+  <annotation>
+    <appinfo>
+      <link:linkbaseRef xlink:type="simple" xlink:href="Novartis-2002-11-15-labels.xml" xlink:actuate="onRequest" xlink:role="http://www.xbrl.org/linkprops/linkRef/label" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" />
+      <link:linkbaseRef xlink:type="simple" xlink:href="Novartis-2002-11-15-references.xml" xlink:actuate="onRequest" xlink:role="http://www.xbrl.org/linkprops/linkRef/reference" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" />
+      <link:linkbaseRef xlink:type="simple" xlink:href="Novartis-2002-11-15-presentation.xml" xlink:actuate="onRequest" xlink:role="http://www.xbrl.org/linkprops/linkRef/presentation" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" />
+      <link:linkbaseRef xlink:type="simple" xlink:href="Novartis-2002-11-15-calculation.xml" xlink:actuate="onRequest" xlink:role="http://www.xbrl.org/linkprops/linkRef/calculation" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" />
+      <link:linkbaseRef xlink:type="simple" xlink:href="Novartis-2002-11-15-definition.xml" xlink:actuate="onRequest" xlink:role="http://www.xbrl.org/linkprops/linkRef/definition" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" />
+    </appinfo>
+  </annotation>
+  <import namespace="http://www.xbrl.org/2001/instance" schemaLocation="http://www.xbrl.org/2001/xbrl-instance.xsd" />
+  <import namespace="http://www.xbrl.org/taxonomy/int/fr/ias/ci/pfs/2002-11-15/WINDOW" schemaLocation="ias-ci-pfs-2002-11-15-WINDOW.xsd" />
+  <import namespace="http://www.xbrl.org/taxonomy/int/fr/ias/ci/edap/2002-11-15" schemaLocation="http://www.xbrl.org/taxonomy/int/fr/ias/ci/edap/2002-11-15/ias-ci-edap-2002-11-15.xsd" />
+  <element id="novartis_WithholdingTaxRecoverable" name="WithholdingTaxRecoverable" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_Unassigned" name="Unassigned" type="xbrli:stringItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_TransferSharePremium" name="TransferSharePremium" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_TotalEquityMinorityInterests" name="TotalEquityMinorityInterests" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_SocialSecurityPensionFunds" name="SocialSecurityPensionFunds" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_SegmentInformation" name="SegmentInformation" abstract="true" />
+  <element id="novartis_SalesPerEmployee" name="SalesPerEmployee" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_SalesPercentTotalSales" name="SalesPercentTotalSales" type="xbrli:decimalItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_SalesChangerelativePrecedingYear" name="SalesChangerelativePrecedingYear" type="xbrli:decimalItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_Sales" name="Sales" type="xbrli:stringItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_RetainedProfitsAccumulatedLossesChangesFairValueAdjustmentFinancialInstruments" name="RetainedProfitsAccumulatedLossesChangesFairValueAdjustmentFinancialInstruments" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_RetainedProfitsAccumulatedLossesChangesEffectAgribusinessSpinOff" name="RetainedProfitsAccumulatedLossesChangesEffectAgribusinessSpinOff" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_ReservesTotalRestatedBalance" name="ReservesTotalRestatedBalance" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_ReservesTotalPriorPeriodAdjustments" name="ReservesTotalPriorPeriodAdjustments" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_ReservesTotalEndingBalance" name="ReservesTotalEndingBalance" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_ReservesTotalChangesOtherMovementsEquity" name="ReservesTotalChangesOtherMovementsEquity" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_ReservesTotalChangesIssuePutOptionsNovartisShares" name="ReservesTotalChangesIssuePutOptionsNovartisShares" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_ReservesTotalChangesIssueCallOptionsNovartisShares" name="ReservesTotalChangesIssueCallOptionsNovartisShares" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_ReservesTotalChangesFairValueAdjustmentFinancialInstruments" name="ReservesTotalChangesFairValueAdjustmentFinancialInstruments" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_ReservesTotalChangesEffectAgribusinessSpinOff" name="ReservesTotalChangesEffectAgribusinessSpinOff" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_ReservesTotalChanges" name="ReservesTotalChanges" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_ReservesTotalBeginningBalanceOriginallyStated" name="ReservesTotalBeginningBalanceOriginallyStated" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_ResearchDevelopmentExpendituresPercentSales" name="ResearchDevelopmentExpendituresPercentSales" type="xbrli:decimalItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_Research" name="Research" type="xbrli:stringItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_RegionalBreakdownKeyFigures" name="RegionalBreakdownKeyFigures" abstract="true" />
+  <element id="novartis_PurchaseTreasuryShares" name="PurchaseTreasuryShares" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_PurchaseIntangibleFinancialAssets" name="PurchaseIntangibleFinancialAssets" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_ProvisionForLegalProductLiabilitySettlementsNonCurrent" name="ProvisionForLegalProductLiabilitySettlementsNonCurrent" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_ProvisionForLegalProductLiabilitySettlements" name="ProvisionForLegalProductLiabilitySettlements" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_ProvisionForGoodsReturnedCommissions" name="ProvisionForGoodsReturnedCommissions" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_ProfitLossPeriod" name="ProfitLossPeriod" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_Production" name="Production" type="xbrli:stringItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_ProceedsFromDisposalsIntangibleFinancialAssets" name="ProceedsFromDisposalsIntangibleFinancialAssets" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_PrincipalCurrencyTranslationRates" name="PrincipalCurrencyTranslationRates" type="xbrli:stringItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_PrincipalCurrencyTranslationRate" name="PrincipalCurrencyTranslationRate" type="xbrli:tupleType" substitutionGroup="xbrli:tuple" />
+  <element id="novartis_PrincipalAverageCurrencyTranslationRate" name="PrincipalAverageCurrencyTranslationRate" type="xbrli:tupleType" substitutionGroup="xbrli:tuple" />
+  <element id="novartis_PrepaidPension" name="PrepaidPension" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_PrepaidExpensesThirdParties" name="PrepaidExpensesThirdParties" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_PrepaidExpensesAssociatedCompanies" name="PrepaidExpensesAssociatedCompanies" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_PersonnelCostsPercentSales" name="PersonnelCostsPercentSales" type="xbrli:decimalItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_PersonnelCosts" name="PersonnelCosts" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_PaymentsCashDividends" name="PaymentsCashDividends" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_OtherReceivablesThirdParties" name="OtherReceivablesThirdParties" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_OtherReceivablesAssociatedCompanies" name="OtherReceivablesAssociatedCompanies" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_OtherPostEmploymentBenefits" name="OtherPostEmploymentBenefits" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_OtherPayables" name="OtherPayables" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_OtherInvestmentsLongTermLoans" name="OtherInvestmentsLongTermLoans" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_OtherFinancialIncome" name="OtherFinancialIncome" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_OtherFinancialExpense" name="OtherFinancialExpense" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_OperatingIncomePercentSales" name="OperatingIncomePercentSales" type="xbrli:decimalItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_OperatingIncomePercentAverageNetOperatingAssets" name="OperatingIncomePercentAverageNetOperatingAssets" type="xbrli:decimalItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_OperatingIncomeChangerelativePrecedingYear" name="OperatingIncomeChangerelativePrecedingYear" type="xbrli:decimalItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_NumberEmployeesYearEnd" name="NumberEmployeesYearEnd" type="xbrli:decimalItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_NovartisFinancialInformation" name="NovartisFinancialInformation" abstract="true" />
+  <element id="novartis_NetOperatingAssetsPercentTotalSales" name="NetOperatingAssetsPercentTotalSales" type="xbrli:decimalItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_NetOperatingAssetsPercentSales" name="NetOperatingAssetsPercentSales" type="xbrli:decimalItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_NetOperatingAssetsChangeRelativePrecedingYear" name="NetOperatingAssetsChangeRelativePrecedingYear" type="xbrli:decimalItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_NetOperatingAssets" name="NetOperatingAssets" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_NetLiquidity" name="NetLiquidity" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_NetIncomePercentSales" name="NetIncomePercentSales" type="xbrli:decimalItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_NetIncomePercentAverageEquity" name="NetIncomePercentAverageEquity" type="xbrli:decimalItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_NetIncomeChangeRelativePrecedingYear" name="NetIncomeChangeRelativePrecedingYear" type="xbrli:decimalItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_NetFinancialIncome" name="NetFinancialIncome" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_LongTermLoansToAssociatedCompanies" name="LongTermLoansToAssociatedCompanies" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_Liquidity" name="Liquidity" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_LiabilitiesForInsuranceActivities" name="LiabilitiesForInsuranceActivities" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_IssuePutOptionsNovartisShares" name="IssuePutOptionsNovartisShares" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_IssueCallOptionsNovartisShares" name="IssueCallOptionsNovartisShares" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_InvestmentTangibleFixedAssetsPercentTotalSales" name="InvestmentTangibleFixedAssetsPercentTotalSales" type="xbrli:decimalItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_InvestmentTangibleFixedAssetsPercentSales" name="InvestmentTangibleFixedAssetsPercentSales" type="xbrli:decimalItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_InvestmenttangiblefixedassetsChangeRelativePrecedingYear" name="InvestmenttangiblefixedassetsChangeRelativePrecedingYear" type="xbrli:decimalItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_InterestIncome" name="InterestIncome" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_InterestExpense" name="InterestExpense" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_InterestEquity" name="InterestEquity" type="xbrli:stringItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_IncomeOtherTaxes" name="IncomeOtherTaxes" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_IncomeOnOptionsAnForwardContracts" name="IncomeOnOptionsAnForwardContracts" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_ImpairmentChargeTangibleFixedAssets" name="ImpairmentChargeTangibleFixedAssets" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item">
+    <annotation>
+      <documentation>Add a same as link to Impairment chages in the IAS taxonomy.</documentation>
+    </annotation>
+  </element>
+  <element id="novartis_ImpairmentChargeIntangibleAssets" name="ImpairmentChargeIntangibleAssets" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item">
+    <annotation>
+      <documentation>Add same as link to IAS impairments</documentation>
+    </annotation>
+  </element>
+  <element id="novartis_HoldingFinance" name="HoldingFinance" type="xbrli:stringItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_GroupSubs" name="GroupSubs" type="xbrli:tupleType" substitutionGroup="xbrli:tuple" />
+  <element id="novartis_GerberLifeInsuranceReceivables" name="GerberLifeInsuranceReceivables" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_GainsOnDisposalTangibleIntangibleAssets" name="GainsOnDisposalTangibleIntangibleAssets" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_FreeCashFlowPercentSales" name="FreeCashFlowPercentSales" type="xbrli:decimalItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_FreeCashFlowChangeRelativePrecedingYear" name="FreeCashFlowChangeRelativePrecedingYear" type="xbrli:decimalItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_FreeCashFlow" name="FreeCashFlow" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_ForeignCurrencyTranslationEffect" name="ForeignCurrencyTranslationEffect" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_FiveYearSummaryFinancialData" name="FiveYearSummaryFinancialData" abstract="true" />
+  <element id="novartis_FinancialIncome" name="FinancialIncome" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_FinancialExpense" name="FinancialExpense" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_FairValueFinancialDerivatives" name="FairValueFinancialDerivatives" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_FairValueFinancialDeravatives" name="FairValueFinancialDeravatives" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_FairValueAdjustmentFinancialInstruments" name="FairValueAdjustmentFinancialInstruments" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_ExpensesOnOptionsForwardContracts" name="ExpensesOnOptionsForwardContracts" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_EquityTotalChangesIssuePutOptionsNovartisShares" name="EquityTotalChangesIssuePutOptionsNovartisShares" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_EquityTotalChangesIssueCallOptionsNovartisShares" name="EquityTotalChangesIssueCallOptionsNovartisShares" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_EquityTotalChangesFairValueAdjustmentFinancialInstruments" name="EquityTotalChangesFairValueAdjustmentFinancialInstruments" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_EquityTotalChangesEffectAgribusinessSpinOff" name="EquityTotalChangesEffectAgribusinessSpinOff" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_EquityMovementsResultingBusinessCombination" name="EquityMovementsResultingBusinessCombination" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_EnvironmentalProvisions" name="EnvironmentalProvisions" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_EntityName" name="EntityName" type="xbrli:stringItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_EmployeeBenefitsUnfundedDefinedBenefitPlans" name="EmployeeBenefitsUnfundedDefinedBenefitPlans" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_EmployeeBenefitsOtherLongTermEmployeeBenefitsDeferredCompensation" name="EmployeeBenefitsOtherLongTermEmployeeBenefitsDeferredCompensation" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_EffectAgribusinessSpinOff" name="EffectAgribusinessSpinOff" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_DueBetweenTwoFiveYears" name="DueBetweenTwoFiveYears" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_DueAfterFiveYears" name="DueAfterFiveYears" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_DividendsNovartisAG" name="DividendsNovartisAG" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_DividendIncome" name="DividendIncome" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_DepreciationTangibleFixedAssetsPercentSales" name="DepreciationTangibleFixedAssetsPercentSales" type="xbrli:decimalItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_DepreciationTangibleFixedAssets" name="DepreciationTangibleFixedAssets" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_DeferredPurchaseConsiderationNonCurrent" name="DeferredPurchaseConsiderationNonCurrent" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_DeferredPurchaseConsideration" name="DeferredPurchaseConsideration" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_DeferredDivestmentProceeds" name="DeferredDivestmentProceeds" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_DebtEquityRatio" name="DebtEquityRatio" type="xbrli:stringItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_CurrentRatio" name="CurrentRatio" type="xbrli:stringItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_CurrentPortionProvisionForPotentialClaimsForInsuranceActivities" name="CurrentPortionProvisionForPotentialClaimsForInsuranceActivities" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_CurrentPortionEnvironmentalProvisions" name="CurrentPortionEnvironmentalProvisions" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_CurrentPortionDueWithinOneYear" name="CurrentPortionDueWithinOneYear" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_CurrencyUnitsForAverage" name="CurrencyUnitsForAverage" type="xbrli:decimalItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_CurrencyUnits" name="CurrencyUnits" type="xbrli:decimalItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_CurrencyTranslationRate" name="CurrencyTranslationRate" type="xbrli:decimalItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_CurrencyResultNet" name="CurrencyResultNet" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_CurrencyForAverage" name="CurrencyForAverage" type="xbrli:stringItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_Currency" name="Currency" type="xbrli:stringItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_Country" name="Country" type="xbrli:stringItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_CommitmentsUnderLongTermResearchAgreements" name="CommitmentsUnderLongTermResearchAgreements" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_ChangeInShortTermFinancialDebts" name="ChangeInShortTermFinancialDebts" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_ChangeInLongTermFinancialDebts" name="ChangeInLongTermFinancialDebts" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_CashFlowOperatingActivitiesPercentSales" name="CashFlowOperatingActivitiesPercentSales" type="xbrli:decimalItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_CashFlowOperatingActivitiesChangeRelativePrecedingYear" name="CashFlowOperatingActivitiesChangeRelativePrecedingYear" type="xbrli:decimalItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_CashFlowBeforeWorkingCapitalProvisionsChanges" name="CashFlowBeforeWorkingCapitalProvisionsChanges" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_CapitalGains" name="CapitalGains" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_AverageCurrencyTranslationRate" name="AverageCurrencyTranslationRate" type="xbrli:decimalItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_AmountsReceivableFromSyngenta" name="AmountsReceivableFromSyngenta" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_AmountDueToSyngenta" name="AmountDueToSyngenta" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_AmortisationIntangibleAssets" name="AmortisationIntangibleAssets" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_AdvancePaymentsWithRespectAcquisitions" name="AdvancePaymentsWithRespectAcquisitions" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element id="novartis_AccruedExpenses" name="AccruedExpenses" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" />
+  <element name="scenarioType">
+    <simpleType>
+      <restriction base="string">
+        <enumeration value="actual" />
+        <enumeration value="budgeted" />
+      </restriction>
+    </simpleType>
+  </element>
+  <element id="novartis_Name" name="Name" type="string" substitutionGroup="link:part" />
+  <element id="novartis_Number" name="Number" type="string" substitutionGroup="link:part" />
+  <element id="novartis_Chapter" name="Chapter" type="string" substitutionGroup="link:part" />
+  <element id="novartis_Paragraph" name="Paragraph" type="string" substitutionGroup="link:part" />
+  <element id="novartis_Subparagraph" name="Subparagraph" type="string" substitutionGroup="link:part" />
+</schema>

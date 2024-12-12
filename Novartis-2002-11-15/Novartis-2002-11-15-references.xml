@@ -1,0 +1,108 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- Linkbase based on XBRL standard v.2.  Created by UBmatrix Taxonomy Builder 5.0.76.  Contact www.ubmatrix.com -->
+<linkbase xmlns="http://www.xbrl.org/2001/XLink/xbrllinkbase" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xsi:schemaLocation="http://www.xbrl.org/taxonomy/int/fr/ias/pfs/2002-11-15/Novartis-2002-11-15 Novartis-2002-11-15.xsd" xmlns:novartis="http://www.xbrl.org/taxonomy/int/fr/ias/pfs/2002-11-15/Novartis-2002-11-15">
+  <referenceLink xlink:type="extended">
+    <loc xlink:type="locator" xlink:href="Novartis-2002-11-15.xsd#novartis_TransferSharePremium" xlink:label="novartis_TransferSharePremium" xlink:title="novartis_TransferSharePremium" />
+    <reference xlink:type="resource" xlink:label="_novartis_TransferSharePremium_link" xlink:title="novartis_TransferSharePremium">
+      <novartis:Name>IAS</novartis:Name>
+      <novartis:Number>1</novartis:Number>
+      <novartis:Chapter>86</novartis:Chapter>
+    </reference>
+    <loc xlink:type="locator" xlink:href="Novartis-2002-11-15.xsd#novartis_ReservesTotalRestatedBalance" xlink:label="novartis_ReservesTotalRestatedBalance" xlink:title="novartis_ReservesTotalRestatedBalance" />
+    <reference xlink:type="resource" xlink:label="_novartis_ReservesTotalRestatedBalance_link" xlink:title="novartis_ReservesTotalRestatedBalance">
+      <novartis:Name>IAS</novartis:Name>
+      <novartis:Number>1</novartis:Number>
+      <novartis:Chapter>86</novartis:Chapter>
+      <novartis:Paragraph>f</novartis:Paragraph>
+    </reference>
+    <loc xlink:type="locator" xlink:href="Novartis-2002-11-15.xsd#novartis_ReservesTotalPriorPeriodAdjustments" xlink:label="novartis_ReservesTotalPriorPeriodAdjustments" xlink:title="novartis_ReservesTotalPriorPeriodAdjustments" />
+    <reference xlink:type="resource" xlink:label="_novartis_ReservesTotalPriorPeriodAdjustments_link" xlink:title="novartis_ReservesTotalPriorPeriodAdjustments">
+      <novartis:Name>IAS</novartis:Name>
+      <novartis:Number>1</novartis:Number>
+      <novartis:Chapter>86</novartis:Chapter>
+      <novartis:Paragraph>f</novartis:Paragraph>
+    </reference>
+    <loc xlink:type="locator" xlink:href="Novartis-2002-11-15.xsd#novartis_ReservesTotalEndingBalance" xlink:label="novartis_ReservesTotalEndingBalance" xlink:title="novartis_ReservesTotalEndingBalance" />
+    <reference xlink:type="resource" xlink:label="_novartis_ReservesTotalEndingBalance_link" xlink:title="novartis_ReservesTotalEndingBalance">
+      <novartis:Name>IAS</novartis:Name>
+      <novartis:Number>1</novartis:Number>
+      <novartis:Chapter>86</novartis:Chapter>
+      <novartis:Paragraph>f</novartis:Paragraph>
+    </reference>
+    <loc xlink:type="locator" xlink:href="Novartis-2002-11-15.xsd#novartis_ReservesTotalChangesOtherMovementsEquity" xlink:label="novartis_ReservesTotalChangesOtherMovementsEquity" xlink:title="novartis_ReservesTotalChangesOtherMovementsEquity" />
+    <reference xlink:type="resource" xlink:label="_novartis_ReservesTotalChangesOtherMovementsEquity_link" xlink:title="novartis_ReservesTotalChangesOtherMovementsEquity">
+      <novartis:Name>IAS</novartis:Name>
+      <novartis:Number>1</novartis:Number>
+      <novartis:Chapter>86</novartis:Chapter>
+    </reference>
+    <loc xlink:type="locator" xlink:href="Novartis-2002-11-15.xsd#novartis_ReservesTotalChanges" xlink:label="novartis_ReservesTotalChanges" xlink:title="novartis_ReservesTotalChanges" />
+    <reference xlink:type="resource" xlink:label="_novartis_ReservesTotalChanges_link" xlink:title="novartis_ReservesTotalChanges">
+      <novartis:Name>IAS</novartis:Name>
+      <novartis:Number>1</novartis:Number>
+      <novartis:Chapter>86</novartis:Chapter>
+      <novartis:Paragraph>f</novartis:Paragraph>
+    </reference>
+    <loc xlink:type="locator" xlink:href="Novartis-2002-11-15.xsd#novartis_ReservesTotalBeginningBalanceOriginallyStated" xlink:label="novartis_ReservesTotalBeginningBalanceOriginallyStated" xlink:title="novartis_ReservesTotalBeginningBalanceOriginallyStated" />
+    <reference xlink:type="resource" xlink:label="_novartis_ReservesTotalBeginningBalanceOriginallyStated_link" xlink:title="novartis_ReservesTotalBeginningBalanceOriginallyStated">
+      <novartis:Name>IAS</novartis:Name>
+      <novartis:Number>1</novartis:Number>
+      <novartis:Chapter>86</novartis:Chapter>
+      <novartis:Paragraph>f</novartis:Paragraph>
+    </reference>
+    <loc xlink:type="locator" xlink:href="Novartis-2002-11-15.xsd#novartis_PurchaseTreasuryShares" xlink:label="novartis_PurchaseTreasuryShares" xlink:title="novartis_PurchaseTreasuryShares" />
+    <reference xlink:type="resource" xlink:label="_novartis_PurchaseTreasuryShares_link" xlink:title="novartis_PurchaseTreasuryShares">
+      <novartis:Name>IAS</novartis:Name>
+      <novartis:Number>1</novartis:Number>
+      <novartis:Chapter>86</novartis:Chapter>
+    </reference>
+    <loc xlink:type="locator" xlink:href="Novartis-2002-11-15.xsd#novartis_ProfitLossPeriod" xlink:label="novartis_ProfitLossPeriod" xlink:title="novartis_ProfitLossPeriod" />
+    <reference xlink:type="resource" xlink:label="_novartis_ProfitLossPeriod_link" xlink:title="novartis_ProfitLossPeriod">
+      <novartis:Name>IAS</novartis:Name>
+      <novartis:Number>1</novartis:Number>
+      <novartis:Chapter>86</novartis:Chapter>
+      <novartis:Paragraph>a</novartis:Paragraph>
+    </reference>
+    <loc xlink:type="locator" xlink:href="Novartis-2002-11-15.xsd#novartis_PaymentsCashDividends" xlink:label="novartis_PaymentsCashDividends" xlink:title="novartis_PaymentsCashDividends" />
+    <reference xlink:type="resource" xlink:label="_novartis_PaymentsCashDividends_link" xlink:title="novartis_PaymentsCashDividends">
+      <novartis:Name>IAS</novartis:Name>
+      <novartis:Number>1</novartis:Number>
+      <novartis:Chapter>86</novartis:Chapter>
+    </reference>
+    <loc xlink:type="locator" xlink:href="Novartis-2002-11-15.xsd#novartis_ForeignCurrencyTranslationEffect" xlink:label="novartis_ForeignCurrencyTranslationEffect" xlink:title="novartis_ForeignCurrencyTranslationEffect" />
+    <reference xlink:type="resource" xlink:label="_novartis_ForeignCurrencyTranslationEffect_link" xlink:title="novartis_ForeignCurrencyTranslationEffect">
+      <novartis:Name>IAS</novartis:Name>
+      <novartis:Number>1</novartis:Number>
+      <novartis:Chapter>86</novartis:Chapter>
+    </reference>
+    <loc xlink:type="locator" xlink:href="Novartis-2002-11-15.xsd#novartis_EquityMovementsResultingBusinessCombination" xlink:label="novartis_EquityMovementsResultingBusinessCombination" xlink:title="novartis_EquityMovementsResultingBusinessCombination" />
+    <reference xlink:type="resource" xlink:label="_novartis_EquityMovementsResultingBusinessCombination_link" xlink:title="novartis_EquityMovementsResultingBusinessCombination">
+      <novartis:Name>IAS</novartis:Name>
+      <novartis:Number>1</novartis:Number>
+      <novartis:Chapter>86</novartis:Chapter>
+    </reference>
+    <referenceArc xlink:type="arc" xlink:from="novartis_EquityMovementsResultingBusinessCombination" xlink:to="_novartis_EquityMovementsResultingBusinessCombination_link" xlink:show="embed" xlink:actuate="onRequest" xlink:title="Go up to: EquityMovementsResultingBusinessCombination" xlink:arcrole="http://www.xbrl.org/linkprops/arc/element-reference" />
+    <referenceArc xlink:type="arc" xlink:from="_novartis_EquityMovementsResultingBusinessCombination_link" xlink:to="novartis_EquityMovementsResultingBusinessCombination" xlink:show="replace" xlink:actuate="onRequest" xlink:title="Go down to: _novartis_EquityMovementsResultingBusinessCombination_link" xlink:arcrole="http://www.xbrl.org/linkprops/arc/reference-element" />
+    <referenceArc xlink:type="arc" xlink:from="novartis_ForeignCurrencyTranslationEffect" xlink:to="_novartis_ForeignCurrencyTranslationEffect_link" xlink:show="embed" xlink:actuate="onRequest" xlink:title="Go up to: ForeignCurrencyTranslationEffect" xlink:arcrole="http://www.xbrl.org/linkprops/arc/element-reference" />
+    <referenceArc xlink:type="arc" xlink:from="_novartis_ForeignCurrencyTranslationEffect_link" xlink:to="novartis_ForeignCurrencyTranslationEffect" xlink:show="replace" xlink:actuate="onRequest" xlink:title="Go down to: _novartis_ForeignCurrencyTranslationEffect_link" xlink:arcrole="http://www.xbrl.org/linkprops/arc/reference-element" />
+    <referenceArc xlink:type="arc" xlink:from="novartis_PaymentsCashDividends" xlink:to="_novartis_PaymentsCashDividends_link" xlink:show="embed" xlink:actuate="onRequest" xlink:title="Go up to: PaymentsCashDividends" xlink:arcrole="http://www.xbrl.org/linkprops/arc/element-reference" />
+    <referenceArc xlink:type="arc" xlink:from="_novartis_PaymentsCashDividends_link" xlink:to="novartis_PaymentsCashDividends" xlink:show="replace" xlink:actuate="onRequest" xlink:title="Go down to: _novartis_PaymentsCashDividends_link" xlink:arcrole="http://www.xbrl.org/linkprops/arc/reference-element" />
+    <referenceArc xlink:type="arc" xlink:from="novartis_ProfitLossPeriod" xlink:to="_novartis_ProfitLossPeriod_link" xlink:show="embed" xlink:actuate="onRequest" xlink:title="Go up to: ProfitLossPeriod" xlink:arcrole="http://www.xbrl.org/linkprops/arc/element-reference" />
+    <referenceArc xlink:type="arc" xlink:from="_novartis_ProfitLossPeriod_link" xlink:to="novartis_ProfitLossPeriod" xlink:show="replace" xlink:actuate="onRequest" xlink:title="Go down to: _novartis_ProfitLossPeriod_link" xlink:arcrole="http://www.xbrl.org/linkprops/arc/reference-element" />
+    <referenceArc xlink:type="arc" xlink:from="novartis_PurchaseTreasuryShares" xlink:to="_novartis_PurchaseTreasuryShares_link" xlink:show="embed" xlink:actuate="onRequest" xlink:title="Go up to: PurchaseTreasuryShares" xlink:arcrole="http://www.xbrl.org/linkprops/arc/element-reference" />
+    <referenceArc xlink:type="arc" xlink:from="_novartis_PurchaseTreasuryShares_link" xlink:to="novartis_PurchaseTreasuryShares" xlink:show="replace" xlink:actuate="onRequest" xlink:title="Go down to: _novartis_PurchaseTreasuryShares_link" xlink:arcrole="http://www.xbrl.org/linkprops/arc/reference-element" />
+    <referenceArc xlink:type="arc" xlink:from="novartis_ReservesTotalBeginningBalanceOriginallyStated" xlink:to="_novartis_ReservesTotalBeginningBalanceOriginallyStated_link" xlink:show="embed" xlink:actuate="onRequest" xlink:title="Go up to: ReservesTotalBeginningBalanceOriginallyStated" xlink:arcrole="http://www.xbrl.org/linkprops/arc/element-reference" />
+    <referenceArc xlink:type="arc" xlink:from="_novartis_ReservesTotalBeginningBalanceOriginallyStated_link" xlink:to="novartis_ReservesTotalBeginningBalanceOriginallyStated" xlink:show="replace" xlink:actuate="onRequest" xlink:title="Go down to: _novartis_ReservesTotalBeginningBalanceOriginallyStated_link" xlink:arcrole="http://www.xbrl.org/linkprops/arc/reference-element" />
+    <referenceArc xlink:type="arc" xlink:from="novartis_ReservesTotalChanges" xlink:to="_novartis_ReservesTotalChanges_link" xlink:show="embed" xlink:actuate="onRequest" xlink:title="Go up to: ReservesTotalChanges" xlink:arcrole="http://www.xbrl.org/linkprops/arc/element-reference" />
+    <referenceArc xlink:type="arc" xlink:from="_novartis_ReservesTotalChanges_link" xlink:to="novartis_ReservesTotalChanges" xlink:show="replace" xlink:actuate="onRequest" xlink:title="Go down to: _novartis_ReservesTotalChanges_link" xlink:arcrole="http://www.xbrl.org/linkprops/arc/reference-element" />
+    <referenceArc xlink:type="arc" xlink:from="novartis_ReservesTotalChangesOtherMovementsEquity" xlink:to="_novartis_ReservesTotalChangesOtherMovementsEquity_link" xlink:show="embed" xlink:actuate="onRequest" xlink:title="Go up to: ReservesTotalChangesOtherMovementsEquity" xlink:arcrole="http://www.xbrl.org/linkprops/arc/element-reference" />
+    <referenceArc xlink:type="arc" xlink:from="_novartis_ReservesTotalChangesOtherMovementsEquity_link" xlink:to="novartis_ReservesTotalChangesOtherMovementsEquity" xlink:show="replace" xlink:actuate="onRequest" xlink:title="Go down to: _novartis_ReservesTotalChangesOtherMovementsEquity_link" xlink:arcrole="http://www.xbrl.org/linkprops/arc/reference-element" />
+    <referenceArc xlink:type="arc" xlink:from="novartis_ReservesTotalEndingBalance" xlink:to="_novartis_ReservesTotalEndingBalance_link" xlink:show="embed" xlink:actuate="onRequest" xlink:title="Go up to: ReservesTotalEndingBalance" xlink:arcrole="http://www.xbrl.org/linkprops/arc/element-reference" />
+    <referenceArc xlink:type="arc" xlink:from="_novartis_ReservesTotalEndingBalance_link" xlink:to="novartis_ReservesTotalEndingBalance" xlink:show="replace" xlink:actuate="onRequest" xlink:title="Go down to: _novartis_ReservesTotalEndingBalance_link" xlink:arcrole="http://www.xbrl.org/linkprops/arc/reference-element" />
+    <referenceArc xlink:type="arc" xlink:from="novartis_ReservesTotalPriorPeriodAdjustments" xlink:to="_novartis_ReservesTotalPriorPeriodAdjustments_link" xlink:show="embed" xlink:actuate="onRequest" xlink:title="Go up to: ReservesTotalPriorPeriodAdjustments" xlink:arcrole="http://www.xbrl.org/linkprops/arc/element-reference" />
+    <referenceArc xlink:type="arc" xlink:from="_novartis_ReservesTotalPriorPeriodAdjustments_link" xlink:to="novartis_ReservesTotalPriorPeriodAdjustments" xlink:show="replace" xlink:actuate="onRequest" xlink:title="Go down to: _novartis_ReservesTotalPriorPeriodAdjustments_link" xlink:arcrole="http://www.xbrl.org/linkprops/arc/reference-element" />
+    <referenceArc xlink:type="arc" xlink:from="novartis_ReservesTotalRestatedBalance" xlink:to="_novartis_ReservesTotalRestatedBalance_link" xlink:show="embed" xlink:actuate="onRequest" xlink:title="Go up to: ReservesTotalRestatedBalance" xlink:arcrole="http://www.xbrl.org/linkprops/arc/element-reference" />
+    <referenceArc xlink:type="arc" xlink:from="_novartis_ReservesTotalRestatedBalance_link" xlink:to="novartis_ReservesTotalRestatedBalance" xlink:show="replace" xlink:actuate="onRequest" xlink:title="Go down to: _novartis_ReservesTotalRestatedBalance_link" xlink:arcrole="http://www.xbrl.org/linkprops/arc/reference-element" />
+    <referenceArc xlink:type="arc" xlink:from="novartis_TransferSharePremium" xlink:to="_novartis_TransferSharePremium_link" xlink:show="embed" xlink:actuate="onRequest" xlink:title="Go up to: TransferSharePremium" xlink:arcrole="http://www.xbrl.org/linkprops/arc/element-reference" />
+    <referenceArc xlink:type="arc" xlink:from="_novartis_TransferSharePremium_link" xlink:to="novartis_TransferSharePremium" xlink:show="replace" xlink:actuate="onRequest" xlink:title="Go down to: _novartis_TransferSharePremium_link" xlink:arcrole="http://www.xbrl.org/linkprops/arc/reference-element" />
+  </referenceLink>
+</linkbase>

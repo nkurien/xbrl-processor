@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by UBmatrix Instance Document Creator (TM)         -->
+<!-- Version 0.0.98                                             -->
+<!--                                                            -->
+<!--                                                            -->
+<!-- (c) 2002 IASC Foundation and XBRL International, all rights reserved       -->
+<!-- This copyright notice and disclaimer must accompany                        -->
+<!-- this document if reused.                                                   -->
+<!--                                                                            -->
+<!-- This information was prepared by the IAS Taxonomy Working Group and is NOT -->
+<!-- intended for financial analysis.  If you have questions, or wish to report -->
+<!-- errors in this document, please contact xbrlfeedback@iasb.org.uk.          -->
+<!--                                                                            -->
+<!--                                                                            -->
+<group 
+       xmlns='http://www.xbrl.org/2001/instance'
+       xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+       xmlns:iso4217='http://www.xbrlSolutions.com/taxonomies/iso4217/2002-06-30'
+       xmlns:iascf-pfs='http://www.xbrl.org/taxonomy/int/fr/ias/ci/pfs/2002-11-15'
+       xmlns:novartis='http://www.xbrl.org/taxonomy/int/fr/ias/pfs/2002-11-15/Novartis-2002-11-15'
+       xsi:schemaLocation='
+                 http://www.xbrlSolutions.com/taxonomies/iso4217/2002-06-30 http://www.xbrlSolutions.com/taxonomies/iso4217/2002-06-30/iso4217.xsd 
+                 http://www.xbrl.org/taxonomy/int/fr/ias/ci/pfs/2002-11-15 ias-ci-pfs-2002-11-15-WINDOW.xsd 
+                 http://www.xbrl.org/taxonomy/int/fr/ias/pfs/2002-11-15/Novartis-2002-11-15 Novartis-2002-11-15.xsd 
+       '>
+      <iascf-pfs:RevenueFunction numericContext='Group2001ForPeriod'>32038000000</iascf-pfs:RevenueFunction>
+      <iascf-pfs:RevenueFunction numericContext='Group2000ForPeriod'>35805000000</iascf-pfs:RevenueFunction>
+      <iascf-pfs:CostSalesFunction numericContext='Group2001ForPeriod'>7886000000</iascf-pfs:CostSalesFunction>
+      <iascf-pfs:CostSalesFunction numericContext='Group2000ForPeriod'>10242000000</iascf-pfs:CostSalesFunction>
+      <iascf-pfs:GrossProfitFunction numericContext='Group2001ForPeriod'>24152000000</iascf-pfs:GrossProfitFunction>
+      <iascf-pfs:GrossProfitFunction numericContext='Group2000ForPeriod'>25563000000</iascf-pfs:GrossProfitFunction>
+      <iascf-pfs:MarketingDistributionCostsFunction numericContext='Group2001ForPeriod'>11098000000</iascf-pfs:MarketingDistributionCostsFunction>
+      <iascf-pfs:MarketingDistributionCostsFunction numericContext='Group2000ForPeriod'>10945000000</iascf-pfs:MarketingDistributionCostsFunction>
+      <iascf-pfs:ResearchDevelopmentFunction numericContext='Group2001ForPeriod'>4189000000</iascf-pfs:ResearchDevelopmentFunction>
+      <iascf-pfs:ResearchDevelopmentFunction numericContext='Group2000ForPeriod'>4657000000</iascf-pfs:ResearchDevelopmentFunction>
+      <iascf-pfs:AdministrativeExpensesFunction numericContext='Group2001ForPeriod'>1588000000</iascf-pfs:AdministrativeExpensesFunction>
+      <iascf-pfs:AdministrativeExpensesFunction numericContext='Group2000ForPeriod'>2078000000</iascf-pfs:AdministrativeExpensesFunction>
+      <iascf-pfs:ProfitLossOperationsFunction numericContext='Group2001ForPeriod'>7277000000</iascf-pfs:ProfitLossOperationsFunction>
+      <iascf-pfs:ProfitLossOperationsFunction numericContext='Group2000ForPeriod'>7883000000</iascf-pfs:ProfitLossOperationsFunction>
+      <iascf-pfs:ShareProfitLossEquityAccountedInvestments numericContext='Group2001ForPeriod'>139000000</iascf-pfs:ShareProfitLossEquityAccountedInvestments>
+      <iascf-pfs:ShareProfitLossEquityAccountedInvestments numericContext='Group2000ForPeriod'>98000000</iascf-pfs:ShareProfitLossEquityAccountedInvestments>
+      <iascf-pfs:FinanceCosts numericContext='Group2001ForPeriod'>-1067000000</iascf-pfs:FinanceCosts>
+      <iascf-pfs:FinanceCosts numericContext='Group2000ForPeriod'>-1091000000</iascf-pfs:FinanceCosts>
+      <iascf-pfs:ProfitLossBeforeTax numericContext='Group2001ForPeriod'>8483000000</iascf-pfs:ProfitLossBeforeTax>
+      <iascf-pfs:ProfitLossBeforeTax numericContext='Group2000ForPeriod'>9072000000</iascf-pfs:ProfitLossBeforeTax>
+      <iascf-pfs:IncomeTaxExpenseIncome numericContext='Group2001ForPeriod'>1440000000</iascf-pfs:IncomeTaxExpenseIncome>
+      <iascf-pfs:IncomeTaxExpenseIncome numericContext='Group2000ForPeriod'>1820000000</iascf-pfs:IncomeTaxExpenseIncome>
+      <iascf-pfs:ProfitLossAfterTax numericContext='Group2001ForPeriod'>7043000000</iascf-pfs:ProfitLossAfterTax>
+      <iascf-pfs:ProfitLossAfterTax numericContext='Group2000ForPeriod'>7252000000</iascf-pfs:ProfitLossAfterTax>
+      <iascf-pfs:MinorityInterestsIncludedGroupProfitLoss numericContext='Group2001ForPeriod'>19000000</iascf-pfs:MinorityInterestsIncludedGroupProfitLoss>
+      <iascf-pfs:MinorityInterestsIncludedGroupProfitLoss numericContext='Group2000ForPeriod'>42000000</iascf-pfs:MinorityInterestsIncludedGroupProfitLoss>
+      <iascf-pfs:NetProfitLossTransferredToEquity numericContext='Group2001ForPeriod'>7024000000</iascf-pfs:NetProfitLossTransferredToEquity>
+      <iascf-pfs:NetProfitLossTransferredToEquity numericContext='Group2000ForPeriod'>7210000000</iascf-pfs:NetProfitLossTransferredToEquity>
+      <iascf-pfs:BasicEarningsLossPerShare numericContext='Group2001ForPeriod'>2.73</iascf-pfs:BasicEarningsLossPerShare>
+      <iascf-pfs:BasicEarningsLossPerShare numericContext='Group2000ForPeriod'>2.75</iascf-pfs:BasicEarningsLossPerShare>
+      <iascf-pfs:DilutedEarningsLossPerShare numericContext='Group2001ForPeriod'>2.72</iascf-pfs:DilutedEarningsLossPerShare>
+      <iascf-pfs:DilutedEarningsLossPerShare numericContext='Group2000ForPeriod'>2.75</iascf-pfs:DilutedEarningsLossPerShare>
+      <iascf-pfs:PropertyPlantEquipment numericContext='Group2001AsOf'>9060000000</iascf-pfs:PropertyPlantEquipment>
+      <iascf-pfs:PropertyPlantEquipment numericContext='Group2000AsOf'>9030000000</iascf-pfs:PropertyPlantEquipment>
+      <iascf-pfs:IntangibleAssets numericContext='Group2001AsOf'>6548000000</iascf-pfs:IntangibleAssets>
+      <iascf-pfs:IntangibleAssets numericContext='Group2000AsOf'>5830000000</iascf-pfs:IntangibleAssets>
+      <iascf-pfs:InvestmentsAssociates numericContext='Group2001AsOf'>6715000000</iascf-pfs:InvestmentsAssociates>
+      <iascf-pfs:InvestmentsAssociates numericContext='Group2000AsOf'>1531000000</iascf-pfs:InvestmentsAssociates>
+      <iascf-pfs:DeferredTaxAssets numericContext='Group2001AsOf'>3235000000</iascf-pfs:DeferredTaxAssets>
+      <iascf-pfs:DeferredTaxAssets numericContext='Group2000AsOf'>3265000000</iascf-pfs:DeferredTaxAssets>
+      <iascf-pfs:OtherFinancialAssetsNonCurrent numericContext='Group2001AsOf'>7027000000</iascf-pfs:OtherFinancialAssetsNonCurrent>
+      <iascf-pfs:OtherFinancialAssetsNonCurrent numericContext='Group2000AsOf'>5601000000</iascf-pfs:OtherFinancialAssetsNonCurrent>
+      <iascf-pfs:NonCurrentAssets numericContext='Group2001AsOf'>32585000000</iascf-pfs:NonCurrentAssets>
+      <iascf-pfs:NonCurrentAssets numericContext='Group2000AsOf'>25257000000</iascf-pfs:NonCurrentAssets>
+      <iascf-pfs:Inventories numericContext='Group2001AsOf'>4112000000</iascf-pfs:Inventories>
+      <iascf-pfs:Inventories numericContext='Group2000AsOf'>4122000000</iascf-pfs:Inventories>
+      <iascf-pfs:TradeOtherReceivablesCurrent numericContext='Group2001AsOf'>5349000000</iascf-pfs:TradeOtherReceivablesCurrent>
+      <iascf-pfs:TradeOtherReceivablesCurrent numericContext='Group2000AsOf'>5283000000</iascf-pfs:TradeOtherReceivablesCurrent>
+      <iascf-pfs:OtherAssetsCurrent numericContext='Group2001AsOf'>2895000000</iascf-pfs:OtherAssetsCurrent>
+      <iascf-pfs:OtherAssetsCurrent numericContext='Group2000AsOf'>3011000000</iascf-pfs:OtherAssetsCurrent>
+      <iascf-pfs:AvailableSaleInvestmentsCurrent numericContext='Group2001AsOf'>10697000000</iascf-pfs:AvailableSaleInvestmentsCurrent>
+      <iascf-pfs:AvailableSaleInvestmentsCurrent numericContext='Group2000AsOf'>11720000000</iascf-pfs:AvailableSaleInvestmentsCurrent>
+      <iascf-pfs:CashCashEquivalents numericContext='Group2001AsOf'>11147000000</iascf-pfs:CashCashEquivalents>
+      <iascf-pfs:CashCashEquivalents numericContext='Group2000AsOf'>8803000000</iascf-pfs:CashCashEquivalents>
+      <iascf-pfs:CurrentAssets numericContext='Group2001AsOf'>34200000000</iascf-pfs:CurrentAssets>
+      <iascf-pfs:CurrentAssets numericContext='Group2000AsOf'>32939000000</iascf-pfs:CurrentAssets>
+      <iascf-pfs:Assets numericContext='Group2001AsOf'>66785000000</iascf-pfs:Assets>
+      <iascf-pfs:Assets numericContext='Group2000AsOf'>58196000000</iascf-pfs:Assets>
+      <iascf-pfs:IssuedCapital numericContext='Group2001AsOf'>1443000000</iascf-pfs:IssuedCapital>
+      <iascf-pfs:IssuedCapital numericContext='Group2000AsOf'>1443000000</iascf-pfs:IssuedCapital>
+      <iascf-pfs:TreasuryShares numericContext='Group2001AsOf'>169000000</iascf-pfs:TreasuryShares>
+      <iascf-pfs:TreasuryShares numericContext='Group2000AsOf'>139000000</iascf-pfs:TreasuryShares>
+      <iascf-pfs:Reserves numericContext='Group2001AsOf'>40971000000</iascf-pfs:Reserves>
+      <iascf-pfs:Reserves numericContext='Group2000AsOf'>35558000000</iascf-pfs:Reserves>
+      <iascf-pfs:Equity numericContext='Group2001AsOf'>42245000000</iascf-pfs:Equity>
+      <iascf-pfs:Equity numericContext='Group2000AsOf'>36862000000</iascf-pfs:Equity>
+      <iascf-pfs:MinorityInterestsNetAssets numericContext='Group2001AsOf'>104000000</iascf-pfs:MinorityInterestsNetAssets>
+      <iascf-pfs:MinorityInterestsNetAssets numericContext='Group2000AsOf'>78000000</iascf-pfs:MinorityInterestsNetAssets>
+      <iascf-pfs:InterestBearingBorrowingsNonCurrent numericContext='Group2001AsOf'>2492000000</iascf-pfs:InterestBearingBorrowingsNonCurrent>
+      <iascf-pfs:InterestBearingBorrowingsNonCurrent numericContext='Group2000AsOf'>2283000000</iascf-pfs:InterestBearingBorrowingsNonCurrent>
+      <iascf-pfs:DeferredTaxLiabilities numericContext='Group2001AsOf'>3885000000</iascf-pfs:DeferredTaxLiabilities>
+      <iascf-pfs:DeferredTaxLiabilities numericContext='Group2000AsOf'>3488000000</iascf-pfs:DeferredTaxLiabilities>
+      <iascf-pfs:OtherLiabilitiesNonCurrent numericContext='Group2001AsOf'>3830000000</iascf-pfs:OtherLiabilitiesNonCurrent>
+      <iascf-pfs:OtherLiabilitiesNonCurrent numericContext='Group2000AsOf'>3845000000</iascf-pfs:OtherLiabilitiesNonCurrent>
+      <iascf-pfs:NonCurrentLiabilities numericContext='Group2001AsOf'>10207000000</iascf-pfs:NonCurrentLiabilities>
+      <iascf-pfs:NonCurrentLiabilities numericContext='Group2000AsOf'>9616000000</iascf-pfs:NonCurrentLiabilities>
+      <iascf-pfs:TradeOtherPayablesCurrent numericContext='Group2001AsOf'>1809000000</iascf-pfs:TradeOtherPayablesCurrent>
+      <iascf-pfs:TradeOtherPayablesCurrent numericContext='Group2000AsOf'>1591000000</iascf-pfs:TradeOtherPayablesCurrent>
+      <iascf-pfs:InterestBearingBorrowingsCurrent numericContext='Group2001AsOf'>5074000000</iascf-pfs:InterestBearingBorrowingsCurrent>
+      <iascf-pfs:InterestBearingBorrowingsCurrent numericContext='Group2000AsOf'>3779000000</iascf-pfs:InterestBearingBorrowingsCurrent>
+      <iascf-pfs:OtherLiabilitiesCurrent numericContext='Group2001AsOf'>7346000000</iascf-pfs:OtherLiabilitiesCurrent>
+      <iascf-pfs:OtherLiabilitiesCurrent numericContext='Group2000AsOf'>6270000000</iascf-pfs:OtherLiabilitiesCurrent>
+      <iascf-pfs:CurrentLiabilities numericContext='Group2001AsOf'>14229000000</iascf-pfs:CurrentLiabilities>
+      <iascf-pfs:CurrentLiabilities numericContext='Group2000AsOf'>11640000000</iascf-pfs:CurrentLiabilities>
+      <iascf-pfs:Liabilities numericContext='Group2001AsOf'>24436000000</iascf-pfs:Liabilities>
+      <iascf-pfs:Liabilities numericContext='Group2000AsOf'>21256000000</iascf-pfs:Liabilities>
+      <iascf-pfs:LiabilitiesEquity numericContext='Group2001AsOf'>66785000000</iascf-pfs:LiabilitiesEquity>
+      <iascf-pfs:LiabilitiesEquity numericContext='Group2000AsOf'>58196000000</iascf-pfs:LiabilitiesEquity>
+      <iascf-pfs:CashFlowsBeforeChangesWorkingCapitalProfitLossOperationsNetProfitLossTransferredToEquity numericContext='Group2001ForPeriod'>7024000000</iascf-pfs:CashFlowsBeforeChangesWorkingCapitalProfitLossOperationsNetProfitLossTransferredToEquity>
+      <iascf-pfs:CashFlowsBeforeChangesWorkingCapitalProfitLossOperationsNetProfitLossTransferredToEquity numericContext='Group2000ForPeriod'>7210000000</iascf-pfs:CashFlowsBeforeChangesWorkingCapitalProfitLossOperationsNetProfitLossTransferredToEquity>
+      <iascf-pfs:AdjustmentsReconcileProfitLossOperationsMinorityInterestsIncludedGroupProfitLoss numericContext='Group2001ForPeriod'>19000000</iascf-pfs:AdjustmentsReconcileProfitLossOperationsMinorityInterestsIncludedGroupProfitLoss>
+      <iascf-pfs:AdjustmentsReconcileProfitLossOperationsMinorityInterestsIncludedGroupProfitLoss numericContext='Group2000ForPeriod'>42000000</iascf-pfs:AdjustmentsReconcileProfitLossOperationsMinorityInterestsIncludedGroupProfitLoss>
+      <iascf-pfs:IncomeTaxExpenseIncomeRelatingCashFlowsOperatingActivities numericContext='Group2001ForPeriod'>1440000000</iascf-pfs:IncomeTaxExpenseIncomeRelatingCashFlowsOperatingActivities>
+      <iascf-pfs:IncomeTaxExpenseIncomeRelatingCashFlowsOperatingActivities numericContext='Group2000ForPeriod'>1820000000</iascf-pfs:IncomeTaxExpenseIncomeRelatingCashFlowsOperatingActivities>
+      <iascf-pfs:DepreciationRelatingCashFlowsOperatingActivities numericContext='Group2001ForPeriod'>969000000</iascf-pfs:DepreciationRelatingCashFlowsOperatingActivities>
+      <iascf-pfs:DepreciationRelatingCashFlowsOperatingActivities numericContext='Group2000ForPeriod'>1196000000</iascf-pfs:DepreciationRelatingCashFlowsOperatingActivities>
+      <iascf-pfs:AmortisationRelatingCashFlowsOperatingActivities numericContext='Group2001ForPeriod'>780000000</iascf-pfs:AmortisationRelatingCashFlowsOperatingActivities>
+      <iascf-pfs:AmortisationRelatingCashFlowsOperatingActivities numericContext='Group2000ForPeriod'>309000000</iascf-pfs:AmortisationRelatingCashFlowsOperatingActivities>
+      <iascf-pfs:ImpairmentChargeReversalRelatingCashFlowsOperatingActivities numericContext='Group2001ForPeriod'>31000000</iascf-pfs:ImpairmentChargeReversalRelatingCashFlowsOperatingActivities>
+      <iascf-pfs:ImpairmentChargeReversalRelatingCashFlowsOperatingActivities numericContext='Group2000ForPeriod'>0</iascf-pfs:ImpairmentChargeReversalRelatingCashFlowsOperatingActivities>
+      <iascf-pfs:AdjustmentsReconcileProfitLossOperationsShareProfitLossEquityAccountedInvestments numericContext='Group2001ForPeriod'>139000000</iascf-pfs:AdjustmentsReconcileProfitLossOperationsShareProfitLossEquityAccountedInvestments>
+      <iascf-pfs:AdjustmentsReconcileProfitLossOperationsShareProfitLossEquityAccountedInvestments numericContext='Group2000ForPeriod'>98000000</iascf-pfs:AdjustmentsReconcileProfitLossOperationsShareProfitLossEquityAccountedInvestments>
+      <novartis:GainsOnDisposalTangibleIntangibleAssets numericContext='Group2001ForPeriod'>510000000</novartis:GainsOnDisposalTangibleIntangibleAssets>
+      <novartis:GainsOnDisposalTangibleIntangibleAssets numericContext='Group2000ForPeriod'>1000000</novartis:GainsOnDisposalTangibleIntangibleAssets>
+      <novartis:NetFinancialIncome numericContext='Group2001ForPeriod'>1067000000</novartis:NetFinancialIncome>
+      <novartis:NetFinancialIncome numericContext='Group2000ForPeriod'>1091000000</novartis:NetFinancialIncome>
+      <iascf-pfs:InterestReceivedClassifiedOperating numericContext='Group2001ForPeriod'>779000000</iascf-pfs:InterestReceivedClassifiedOperating>
+      <iascf-pfs:InterestReceivedClassifiedOperating numericContext='Group2000ForPeriod'>1944000000</iascf-pfs:InterestReceivedClassifiedOperating>
+      <iascf-pfs:InterestPaidClassifiedOperating numericContext='Group2001ForPeriod'>391000000</iascf-pfs:InterestPaidClassifiedOperating>
+      <iascf-pfs:InterestPaidClassifiedOperating numericContext='Group2000ForPeriod'>1211000000</iascf-pfs:InterestPaidClassifiedOperating>
+      <iascf-pfs:IncomeTaxesPaid numericContext='Group2001ForPeriod'>1377000000</iascf-pfs:IncomeTaxesPaid>
+      <iascf-pfs:IncomeTaxesPaid numericContext='Group2000ForPeriod'>2176000000</iascf-pfs:IncomeTaxesPaid>
+      <novartis:CashFlowBeforeWorkingCapitalProvisionsChanges numericContext='Group2001ForPeriod'>7558000000</novartis:CashFlowBeforeWorkingCapitalProvisionsChanges>
+      <novartis:CashFlowBeforeWorkingCapitalProvisionsChanges numericContext='Group2000ForPeriod'>7944000000</novartis:CashFlowBeforeWorkingCapitalProvisionsChanges>
+      <iascf-pfs:IncreaseDecreaseProvisionsRelatingCashFlowsOperatingActivities numericContext='Group2001ForPeriod'>421000000</iascf-pfs:IncreaseDecreaseProvisionsRelatingCashFlowsOperatingActivities>
+      <iascf-pfs:IncreaseDecreaseProvisionsRelatingCashFlowsOperatingActivities numericContext='Group2000ForPeriod'>439000000</iascf-pfs:IncreaseDecreaseProvisionsRelatingCashFlowsOperatingActivities>
+      <iascf-pfs:IncreaseDecreaseWorkingCapital numericContext='Group2001ForPeriod'>205000000</iascf-pfs:IncreaseDecreaseWorkingCapital>
+      <iascf-pfs:IncreaseDecreaseWorkingCapital numericContext='Group2000ForPeriod'>107000000</iascf-pfs:IncreaseDecreaseWorkingCapital>
+      <iascf-pfs:CashFlowsUsedOperationsIndirectMethod numericContext='Group2001ForPeriod'>7342000000</iascf-pfs:CashFlowsUsedOperationsIndirectMethod>
+      <iascf-pfs:CashFlowsUsedOperationsIndirectMethod numericContext='Group2000ForPeriod'>7612000000</iascf-pfs:CashFlowsUsedOperationsIndirectMethod>
+      <iascf-pfs:PaymentsAcquirePropertyPlantEquipment numericContext='Group2001ForPeriod'>1351000000</iascf-pfs:PaymentsAcquirePropertyPlantEquipment>
+      <iascf-pfs:PaymentsAcquirePropertyPlantEquipment numericContext='Group2000ForPeriod'>1353000000</iascf-pfs:PaymentsAcquirePropertyPlantEquipment>
+      <iascf-pfs:ProceedsDisposalPropertyPlantEquipment numericContext='Group2001ForPeriod'>275000000</iascf-pfs:ProceedsDisposalPropertyPlantEquipment>
+      <iascf-pfs:ProceedsDisposalPropertyPlantEquipment numericContext='Group2000ForPeriod'>347000000</iascf-pfs:ProceedsDisposalPropertyPlantEquipment>
+      <novartis:PurchaseIntangibleFinancialAssets numericContext='Group2001ForPeriod'>7552000000</novartis:PurchaseIntangibleFinancialAssets>
+      <novartis:PurchaseIntangibleFinancialAssets numericContext='Group2000ForPeriod'>3149000000</novartis:PurchaseIntangibleFinancialAssets>
+      <novartis:ProceedsFromDisposalsIntangibleFinancialAssets numericContext='Group2001ForPeriod'>1550000000</novartis:ProceedsFromDisposalsIntangibleFinancialAssets>
+      <novartis:ProceedsFromDisposalsIntangibleFinancialAssets numericContext='Group2000ForPeriod'>471000000</novartis:ProceedsFromDisposalsIntangibleFinancialAssets>
+      <iascf-pfs:PaymentsAcquireSubsidiariesNetCashAcquired numericContext='Group2001ForPeriod'>169000000</iascf-pfs:PaymentsAcquireSubsidiariesNetCashAcquired>
+      <iascf-pfs:PaymentsAcquireSubsidiariesNetCashAcquired numericContext='Group2000ForPeriod'>1371000000</iascf-pfs:PaymentsAcquireSubsidiariesNetCashAcquired>
+      <iascf-pfs:PaymentsAcquireOtherAssets numericContext='Group2001ForPeriod'>1000000</iascf-pfs:PaymentsAcquireOtherAssets>
+      <iascf-pfs:PaymentsAcquireOtherAssets numericContext='Group2000ForPeriod'>0</iascf-pfs:PaymentsAcquireOtherAssets>
+      <iascf-pfs:ProceedsDisposalOtherFinancialAssets numericContext='Group2001ForPeriod'>2573000000</iascf-pfs:ProceedsDisposalOtherFinancialAssets>
+      <iascf-pfs:ProceedsDisposalOtherFinancialAssets numericContext='Group2000ForPeriod'>4839000000</iascf-pfs:ProceedsDisposalOtherFinancialAssets>
+      <iascf-pfs:NetCashFlowsUsedInvestingActivities numericContext='Group2001ForPeriod'>-4675000000</iascf-pfs:NetCashFlowsUsedInvestingActivities>
+      <iascf-pfs:NetCashFlowsUsedInvestingActivities numericContext='Group2000ForPeriod'>-216000000</iascf-pfs:NetCashFlowsUsedInvestingActivities>
+      <iascf-pfs:PurchaseTreasuryShares numericContext='Group2001ForPeriod'>3848000000</iascf-pfs:PurchaseTreasuryShares>
+      <iascf-pfs:PurchaseTreasuryShares numericContext='Group2000ForPeriod'>1165000000</iascf-pfs:PurchaseTreasuryShares>
+      <iascf-pfs:ProceedsIssueEquityInstruments numericContext='Group2001ForPeriod'>4056000000</iascf-pfs:ProceedsIssueEquityInstruments>
+      <iascf-pfs:ProceedsIssueEquityInstruments numericContext='Group2000ForPeriod'>0</iascf-pfs:ProceedsIssueEquityInstruments>
+      <novartis:ChangeInLongTermFinancialDebts numericContext='Group2001ForPeriod'>1258000000</novartis:ChangeInLongTermFinancialDebts>
+      <novartis:ChangeInLongTermFinancialDebts numericContext='Group2000ForPeriod'>-124000000</novartis:ChangeInLongTermFinancialDebts>
+      <novartis:ChangeInShortTermFinancialDebts numericContext='Group2001ForPeriod'>374000000</novartis:ChangeInShortTermFinancialDebts>
+      <novartis:ChangeInShortTermFinancialDebts numericContext='Group2000ForPeriod'>-1402000000</novartis:ChangeInShortTermFinancialDebts>
+      <iascf-pfs:DividendsPaidClassifiedFinancing numericContext='Group2001ForPeriod'>2194000000</iascf-pfs:DividendsPaidClassifiedFinancing>
+      <iascf-pfs:DividendsPaidClassifiedFinancing numericContext='Group2000ForPeriod'>2064000000</iascf-pfs:DividendsPaidClassifiedFinancing>
+      <iascf-pfs:NetCashFlowsUsedFinancingActivities numericContext='Group2001ForPeriod'>-354000000</iascf-pfs:NetCashFlowsUsedFinancingActivities>
+      <iascf-pfs:NetCashFlowsUsedFinancingActivities numericContext='Group2000ForPeriod'>-4755000000</iascf-pfs:NetCashFlowsUsedFinancingActivities>
+      <iascf-pfs:EffectExchangeRateChangesCashCashEquivalents numericContext='Group2001ForPeriod'>31000000</iascf-pfs:EffectExchangeRateChangesCashCashEquivalents>
+      <iascf-pfs:EffectExchangeRateChangesCashCashEquivalents numericContext='Group2000ForPeriod'>-119000000</iascf-pfs:EffectExchangeRateChangesCashCashEquivalents>
+      <iascf-pfs:NetIncreaseDecreaseCashCashEquivalents numericContext='Group2001ForPeriod'>2344000000</iascf-pfs:NetIncreaseDecreaseCashCashEquivalents>
+      <iascf-pfs:NetIncreaseDecreaseCashCashEquivalents numericContext='Group2000ForPeriod'>2522000000</iascf-pfs:NetIncreaseDecreaseCashCashEquivalents>
+      <iascf-pfs:CashCashEquivalentsBeginningBalance numericContext='Group2000AsOf'>8803000000</iascf-pfs:CashCashEquivalentsBeginningBalance>
+      <iascf-pfs:CashCashEquivalentsBeginningBalance numericContext='Group1999AsOf'>6281000000</iascf-pfs:CashCashEquivalentsBeginningBalance>
+      <iascf-pfs:CashCashEquivalentsEndingBalance numericContext='Group2001AsOf'>11147000000</iascf-pfs:CashCashEquivalentsEndingBalance>
+      <iascf-pfs:CashCashEquivalentsEndingBalance numericContext='Group2000AsOf'>8803000000</iascf-pfs:CashCashEquivalentsEndingBalance>
+      <iascf-pfs:SharePremiumOrdinarySharesEndingBalance numericContext='Group1999AsOf'>2475000000</iascf-pfs:SharePremiumOrdinarySharesEndingBalance>
+      <iascf-pfs:RetainedProfitsAccumulatedLossesEndingBalance numericContext='Group1999AsOf'>33455000000</iascf-pfs:RetainedProfitsAccumulatedLossesEndingBalance>
+      <iascf-pfs:TranslationReservesEndingBalance numericContext='Group1999AsOf'>-27000000</iascf-pfs:TranslationReservesEndingBalance>
+      <novartis:ReservesTotalEndingBalance numericContext='Group1999AsOf'>35903000000</novartis:ReservesTotalEndingBalance>
+      <iascf-pfs:ShareCapitalOrdinarySharesEndingBalance numericContext='Group1999AsOf'>1443000000</iascf-pfs:ShareCapitalOrdinarySharesEndingBalance>
+      <iascf-pfs:TreasurySharesEndingBalance numericContext='Group1999AsOf'>-130000000</iascf-pfs:TreasurySharesEndingBalance>
+      <iascf-pfs:EquityTotalEndingBalance numericContext='Group1999AsOf'>37216000000</iascf-pfs:EquityTotalEndingBalance>
+      <iascf-pfs:RetainedProfitsAccumulatedLossesChangesPaymentsCashDividends numericContext='Group2000ForPeriod'>2064000000</iascf-pfs:RetainedProfitsAccumulatedLossesChangesPaymentsCashDividends>
+      <novartis:PaymentsCashDividends numericContext='Group2000ForPeriod'>2064000000</novartis:PaymentsCashDividends>
+      <iascf-pfs:EquityTotalChangesPaymentsCashDividends numericContext='Group2000ForPeriod'>2064000000</iascf-pfs:EquityTotalChangesPaymentsCashDividends>
+      <iascf-pfs:RetainedProfitsAccumulatedLossesChangesTransferSharePremium numericContext='Group2000ForPeriod'>-2186000000</iascf-pfs:RetainedProfitsAccumulatedLossesChangesTransferSharePremium>
+      <iascf-pfs:RetainedProfitsAccumulatedLossesChangesTransferSharePremium numericContext='Group2000ForPeriod'>2186000000</iascf-pfs:RetainedProfitsAccumulatedLossesChangesTransferSharePremium>
+      <iascf-pfs:RetainedProfitsAccumulatedLossesChangesPurchaseTreasuryShares numericContext='Group2000ForPeriod'>-1156000000</iascf-pfs:RetainedProfitsAccumulatedLossesChangesPurchaseTreasuryShares>
+      <novartis:PurchaseTreasuryShares numericContext='Group2000ForPeriod'>-1156000000</novartis:PurchaseTreasuryShares>
+      <iascf-pfs:TreasurySharesChangesPurchaseTreasuryShares numericContext='Group2000ForPeriod'>-9000000</iascf-pfs:TreasurySharesChangesPurchaseTreasuryShares>
+      <iascf-pfs:EquityTotalChangesPurchaseTreasuryShares numericContext='Group2000ForPeriod'>-1165000000</iascf-pfs:EquityTotalChangesPurchaseTreasuryShares>
+      <novartis:RetainedProfitsAccumulatedLossesChangesEffectAgribusinessSpinOff numericContext='Group2000ForPeriod'>-3655000000</novartis:RetainedProfitsAccumulatedLossesChangesEffectAgribusinessSpinOff>
+      <novartis:EffectAgribusinessSpinOff numericContext='Group2000ForPeriod'>-109000000</novartis:EffectAgribusinessSpinOff>
+      <novartis:ReservesTotalChangesEffectAgribusinessSpinOff numericContext='Group2000ForPeriod'>-3764000000</novartis:ReservesTotalChangesEffectAgribusinessSpinOff>
+      <novartis:EquityTotalChangesEffectAgribusinessSpinOff numericContext='Group2000ForPeriod'>-3764000000</novartis:EquityTotalChangesEffectAgribusinessSpinOff>
+      <iascf-pfs:TranslationReservesChangesForeignCurrencyTranslationEffect numericContext='Group2000ForPeriod'>-571000000</iascf-pfs:TranslationReservesChangesForeignCurrencyTranslationEffect>
+      <novartis:ForeignCurrencyTranslationEffect numericContext='Group2000ForPeriod'>-571000000</novartis:ForeignCurrencyTranslationEffect>
+      <iascf-pfs:EquityTotalChangesForeignCurrencyTranslationEffect numericContext='Group2000ForPeriod'>-571000000</iascf-pfs:EquityTotalChangesForeignCurrencyTranslationEffect>
+      <iascf-pfs:RetainedProfitsAccumulatedLossesChangesNetProfitLossTransferredToEquity numericContext='Group2000ForPeriod'>7210000000</iascf-pfs:RetainedProfitsAccumulatedLossesChangesNetProfitLossTransferredToEquity>
+      <novartis:ProfitLossPeriod numericContext='Group2000ForPeriod'>7210000000</novartis:ProfitLossPeriod>
+      <iascf-pfs:EquityTotalChangesNetProfitLossTransferredToEquity numericContext='Group2000ForPeriod'>7210000000</iascf-pfs:EquityTotalChangesNetProfitLossTransferredToEquity>
+      <iascf-pfs:SharePremiumOrdinarySharesEndingBalance numericContext='Group2000AsOf'>289000000</iascf-pfs:SharePremiumOrdinarySharesEndingBalance>
+      <iascf-pfs:RetainedProfitsAccumulatedLossesEndingBalance numericContext='Group2000AsOf'>35976000000</iascf-pfs:RetainedProfitsAccumulatedLossesEndingBalance>
+      <iascf-pfs:TranslationReservesEndingBalance numericContext='Group2000AsOf'>-707000000</iascf-pfs:TranslationReservesEndingBalance>
+      <novartis:ReservesTotalEndingBalance numericContext='Group2000AsOf'>35558000000</novartis:ReservesTotalEndingBalance>
+      <iascf-pfs:ShareCapitalOrdinarySharesEndingBalance numericContext='Group2000AsOf'>1443000000</iascf-pfs:ShareCapitalOrdinarySharesEndingBalance>
+      <iascf-pfs:TreasurySharesEndingBalance numericContext='Group2000AsOf'>-139000000</iascf-pfs:TreasurySharesEndingBalance>
+      <iascf-pfs:EquityTotalEndingBalance numericContext='Group2000AsOf'>36862000000</iascf-pfs:EquityTotalEndingBalance>
+      <novartis:RetainedProfitsAccumulatedLossesChangesFairValueAdjustmentFinancialInstruments numericContext='Group2001ForPeriod'>1054000000</novartis:RetainedProfitsAccumulatedLossesChangesFairValueAdjustmentFinancialInstruments>
+      <novartis:FairValueAdjustmentFinancialInstruments numericContext='Group2001ForPeriod'>-20000000</novartis:FairValueAdjustmentFinancialInstruments>
+      <novartis:ReservesTotalChangesFairValueAdjustmentFinancialInstruments numericContext='Group2001ForPeriod'>1034000000</novartis:ReservesTotalChangesFairValueAdjustmentFinancialInstruments>
+      <novartis:EquityTotalChangesFairValueAdjustmentFinancialInstruments numericContext='Group2001ForPeriod'>1034000000</novartis:EquityTotalChangesFairValueAdjustmentFinancialInstruments>
+      <iascf-pfs:RetainedProfitsAccumulatedLossesChangesPaymentsCashDividends numericContext='Group2001ForPeriod'>2194000000</iascf-pfs:RetainedProfitsAccumulatedLossesChangesPaymentsCashDividends>
+      <novartis:PaymentsCashDividends numericContext='Group2001ForPeriod'>2194000000</novartis:PaymentsCashDividends>
+      <iascf-pfs:EquityTotalChangesPaymentsCashDividends numericContext='Group2001ForPeriod'>2194000000</iascf-pfs:EquityTotalChangesPaymentsCashDividends>
+      <iascf-pfs:RetainedProfitsAccumulatedLossesChangesPurchaseTreasuryShares numericContext='Group2001ForPeriod'>3825000000</iascf-pfs:RetainedProfitsAccumulatedLossesChangesPurchaseTreasuryShares>
+      <novartis:PurchaseTreasuryShares numericContext='Group2001ForPeriod'>3825000000</novartis:PurchaseTreasuryShares>
+      <iascf-pfs:TreasurySharesChangesPurchaseTreasuryShares numericContext='Group2001ForPeriod'>30000000</iascf-pfs:TreasurySharesChangesPurchaseTreasuryShares>
+      <iascf-pfs:EquityTotalChangesPurchaseTreasuryShares numericContext='Group2001ForPeriod'>3855000000</iascf-pfs:EquityTotalChangesPurchaseTreasuryShares>
+      <novartis:IssueCallOptionsNovartisShares numericContext='Group2001ForPeriod'>3102000000</novartis:IssueCallOptionsNovartisShares>
+      <novartis:ReservesTotalChangesIssueCallOptionsNovartisShares numericContext='Group2001ForPeriod'>3102000000</novartis:ReservesTotalChangesIssueCallOptionsNovartisShares>
+      <novartis:EquityTotalChangesIssueCallOptionsNovartisShares numericContext='Group2001ForPeriod'>3102000000</novartis:EquityTotalChangesIssueCallOptionsNovartisShares>
+      <novartis:IssuePutOptionsNovartisShares numericContext='Group2001ForPeriod'>909000000</novartis:IssuePutOptionsNovartisShares>
+      <novartis:ReservesTotalChangesIssuePutOptionsNovartisShares numericContext='Group2001ForPeriod'>909000000</novartis:ReservesTotalChangesIssuePutOptionsNovartisShares>
+      <novartis:EquityTotalChangesIssuePutOptionsNovartisShares numericContext='Group2001ForPeriod'>909000000</novartis:EquityTotalChangesIssuePutOptionsNovartisShares>
+      <iascf-pfs:TranslationReservesChangesForeignCurrencyTranslationEffect numericContext='Group2001ForPeriod'>-637000000</iascf-pfs:TranslationReservesChangesForeignCurrencyTranslationEffect>
+      <novartis:ForeignCurrencyTranslationEffect numericContext='Group2001ForPeriod'>-637000000</novartis:ForeignCurrencyTranslationEffect>
+      <iascf-pfs:EquityTotalChangesForeignCurrencyTranslationEffect numericContext='Group2001ForPeriod'>-637000000</iascf-pfs:EquityTotalChangesForeignCurrencyTranslationEffect>
+      <iascf-pfs:RetainedProfitsAccumulatedLossesChangesNetProfitLossTransferredToEquity numericContext='Group2001ForPeriod'>7024000000</iascf-pfs:RetainedProfitsAccumulatedLossesChangesNetProfitLossTransferredToEquity>
+      <novartis:ProfitLossPeriod numericContext='Group2001ForPeriod'>7024000000</novartis:ProfitLossPeriod>
+      <iascf-pfs:EquityTotalChangesNetProfitLossTransferredToEquity numericContext='Group2001ForPeriod'>7024000000</iascf-pfs:EquityTotalChangesNetProfitLossTransferredToEquity>
+      <iascf-pfs:SharePremiumOrdinarySharesEndingBalance numericContext='Group2001AsOf'>4300000000</iascf-pfs:SharePremiumOrdinarySharesEndingBalance>
+      <iascf-pfs:RetainedProfitsAccumulatedLossesEndingBalance numericContext='Group2001AsOf'>38035000000</iascf-pfs:RetainedProfitsAccumulatedLossesEndingBalance>
+      <iascf-pfs:TranslationReservesEndingBalance numericContext='Group2001AsOf'>-1344000000</iascf-pfs:TranslationReservesEndingBalance>
+      <iascf-pfs:HedgingReservesEndingBalance numericContext='Group2001AsOf'>-20000000</iascf-pfs:HedgingReservesEndingBalance>
+      <novartis:ReservesTotalEndingBalance numericContext='Group2001AsOf'>40971000000</novartis:ReservesTotalEndingBalance>
+      <iascf-pfs:ShareCapitalOrdinarySharesEndingBalance numericContext='Group2001AsOf'>1443000000</iascf-pfs:ShareCapitalOrdinarySharesEndingBalance>
+      <iascf-pfs:TreasurySharesEndingBalance numericContext='Group2001AsOf'>-169000000</iascf-pfs:TreasurySharesEndingBalance>
+      <iascf-pfs:EquityTotalEndingBalance numericContext='Group2001AsOf'>42245000000</iascf-pfs:EquityTotalEndingBalance>
+      <numericContext id='Group1999AsOf' precision='18' cwa='true'>
+         <entity>
+            <identifier scheme='http://www.novartis.com/group'>Novartis Group</identifier>
+         <segment>
+            
+         </segment>
+         </entity>
+         <period>
+            <instant>1999-12-31</instant>
+         </period>
+         <unit>
+            <measure>iso4217:CHF</measure>
+         </unit>
+         <scenario><novartis:scenarioType>actual</novartis:scenarioType></scenario>
+      </numericContext>
+      <numericContext id='Group2000AsOf' precision='18' cwa='true'>
+         <entity>
+            <identifier scheme='http://www.novartis.com/group'>Novartis Group</identifier>
+         <segment>
+            
+         </segment>
+         </entity>
+         <period>
+            <instant>2000-12-31</instant>
+         </period>
+         <unit>
+            <measure>iso4217:CHF</measure>
+         </unit>
+         <scenario><novartis:scenarioType>actual</novartis:scenarioType></scenario>
+      </numericContext>
+      <numericContext id='Group2000ForPeriod' precision='18' cwa='true'>
+         <entity>
+            <identifier scheme='http://www.novartis.com/group'>Novartis Group</identifier>
+         <segment>
+            
+         </segment>
+         </entity>
+         <period>
+            <duration>P1Y</duration>
+            <endDate>2000-12-31</endDate>
+         </period>
+         <unit>
+            <measure>iso4217:CHF</measure>
+         </unit>
+         <scenario><novartis:scenarioType>actual</novartis:scenarioType></scenario>
+      </numericContext>
+      <numericContext id='Group2001AsOf' precision='18' cwa='true'>
+         <entity>
+            <identifier scheme='http://www.novartis.com/group'>Novartis Group</identifier>
+         <segment>
+            
+         </segment>
+         </entity>
+         <period>
+            <instant>2001-12-31</instant>
+         </period>
+         <unit>
+            <measure>iso4217:CHF</measure>
+         </unit>
+         <scenario><novartis:scenarioType>actual</novartis:scenarioType></scenario>
+      </numericContext>
+      <numericContext id='Group2001ForPeriod' precision='18' cwa='true'>
+         <entity>
+            <identifier scheme='http://www.novartis.com/group'>Novartis Group</identifier>
+         <segment>
+            
+         </segment>
+         </entity>
+         <period>
+            <duration>P1Y</duration>
+            <endDate>2001-12-31</endDate>
+         </period>
+         <unit>
+            <measure>iso4217:CHF</measure>
+         </unit>
+         <scenario><novartis:scenarioType>actual</novartis:scenarioType></scenario>
+      </numericContext>
+</group>
