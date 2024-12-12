@@ -1,10 +1,9 @@
-# test_processor.py
-
 import pytest
 from pathlib import Path
-from processor import XBRLProcessor, XBRLContext, XBRLUnit, XBRLFact
 from datetime import datetime
+from decimal import Decimal
 from lxml import etree
+from processor import XBRLProcessor, XBRLContext, XBRLUnit, XBRLFact
 
 
 @pytest.fixture
@@ -12,257 +11,184 @@ def processor():
     """Provide a fresh XBRLProcessor instance for each test."""
     return XBRLProcessor()
 
-@pytest.fixture
-def sample_fact_xml():
-    """Provide sample XML with fact definitions."""
-    return """
-    <xbrl xmlns:xbrli="http://www.xbrl.org/2001/instance" 
-          xmlns:test="http://test.namespace">
-        <test:Revenue contextRef="ctx1" unitRef="usd" decimals="2">1000.00</test:Revenue>
-        <test:Description contextRef="ctx1">Test description</test:Description>
-    </xbrl>
-    """
 
 @pytest.fixture
-def sample_unit_xml():
-    """Provide sample XML with unit definitions."""
-    return """
+def sample_contexts():
+    """Provide standard test contexts."""
+    return {
+        'ctx1': XBRLContext(
+            id='ctx1',
+            entity='http://entity.com:TEST',
+            instant=datetime(2024, 1, 1)
+        ),
+        'ctx2': XBRLContext(
+            id='ctx2',
+            entity='http://entity.com:TEST',
+            period_start=datetime(2024, 1, 1),
+            period_end=datetime(2024, 12, 31)
+        )
+    }
+
+
+def test_fact_parsing(processor, sample_contexts):
+    """Test comprehensive fact parsing with different types and attributes."""
+    xml = """
     <xbrl xmlns:xbrli="http://www.xbrl.org/2001/instance" 
+          xmlns:test="http://test.namespace"
           xmlns:iso4217="http://www.xbrl.org/2003/iso4217">
-        <xbrli:unit id="usd">
-            <xbrli:measure>iso4217:USD</xbrli:measure>
-        </xbrli:unit>
-        <xbrli:unit id="ratio">
-            <xbrli:divide>
-                <xbrli:unitNumerator>
-                    <xbrli:measure>xbrli:pure</xbrli:measure>
-                </xbrli:unitNumerator>
-                <xbrli:unitDenominator>
-                    <xbrli:measure>xbrli:pure</xbrli:measure>
-                </xbrli:unitDenominator>
-            </xbrli:divide>
-        </xbrli:unit>
+        <test:Revenue contextRef="ctx1" unitRef="usd" decimals="2" precision="INF" sign="-">1000.00</test:Revenue>
+        <test:Shares contextRef="ctx1" unitRef="shares" precision="4">500000</test:Shares>
+        <test:Ratio contextRef="ctx1" unitRef="pure" decimals="4">0.5432</test:Ratio>
+        <test:Description contextRef="ctx1">Test description with special chars: &amp; &lt; &gt;</test:Description>
     </xbrl>
     """
 
-@pytest.fixture
-def sample_context_xml():
-    """Provide sample XML with a context definition."""
-    return """
-    <xbrl xmlns:xbrli="http://www.xbrl.org/2001/instance">
-        <xbrli:context id="ctx1">
-            <xbrli:entity>
-                <xbrli:identifier scheme="http://www.sec.gov/CIK">0000000001</xbrli:identifier>
-            </xbrli:entity>
-            <xbrli:period>
-                <xbrli:instant>2024-01-01</xbrli:instant>
-            </xbrli:period>
-        </xbrli:context>
-    </xbrl>
-    """
-
-
-def test_fact_parsing(processor, sample_fact_xml):
-    """Test that facts are correctly parsed from XML."""
-    root = etree.fromstring(sample_fact_xml)
-    # Add test namespace
+    # Setup processor
+    root = etree.fromstring(xml)
     processor.namespaces['test'] = 'http://test.namespace'
-    # Add context for reference
-    processor.contexts['ctx1'] = XBRLContext(
-        id='ctx1',
-        entity='test',
-        instant=datetime.now()
-    )
+    processor.contexts.update(sample_contexts)
+    processor.units.update({
+        'usd': XBRLUnit(id='usd', measures=['iso4217:USD']),
+        'shares': XBRLUnit(id='shares', measures=['xbrli:shares']),
+        'pure': XBRLUnit(id='pure', measures=['xbrli:pure'])
+    })
 
+    # Parse facts
     processor._parse_facts(root)
 
-    assert len(processor.facts) == 2
-    numeric_fact = next(f for f in processor.facts if f.concept == 'test:Revenue')
-    text_fact = next(f for f in processor.facts if f.concept == 'test:Description')
+    # Verify correct number of facts parsed
+    assert len(processor.facts) == 4, "Should parse exactly 4 facts"
 
-    assert numeric_fact.value == 1000.00
-    assert text_fact.value == 'Test description'
+    # Test numeric fact with sign and precision
+    revenue = next(f for f in processor.facts if f.concept == 'test:Revenue')
+    assert revenue.value == -1000.00
+    assert revenue.decimals == 2
+    assert revenue.precision == float('inf')
+    assert revenue.unit_ref == 'usd'
+
+    # Test integer fact with precision
+    shares = next(f for f in processor.facts if f.concept == 'test:Shares')
+    assert isinstance(shares.value, int)
+    assert shares.value == 500000
+    assert shares.precision == 4
+
+    # Test decimal fact
+    ratio = next(f for f in processor.facts if f.concept == 'test:Ratio')
+    assert isinstance(ratio.value, float)
+    assert ratio.value == 0.5432
+    assert ratio.decimals == 4
+
+    # Test string fact with special characters
+    desc = next(f for f in processor.facts if f.concept == 'test:Description')
+    assert desc.value == 'Test description with special chars: & < >'
+    assert desc.unit_ref is None
 
 
-def test_validation_missing_context(processor):
-    """Test validation catches facts with missing context references."""
-    processor.facts.append(XBRLFact(
-        concept='test:Value',
-        value=100,
-        context_ref='missing_context',
-        unit_ref='usd'
-    ))
+def test_validation(processor, sample_contexts):
+    """Test comprehensive validation including context, unit, and fact relationships."""
+    # Setup test data
+    processor.contexts.update(sample_contexts)
+    processor.units['usd'] = XBRLUnit(id='usd', measures=['iso4217:USD'])
 
+    # Add valid and invalid facts
+    test_facts = [
+        XBRLFact(concept='test:Valid', value=100, context_ref='ctx1', unit_ref='usd'),
+        XBRLFact(concept='test:MissingContext', value=100, context_ref='missing', unit_ref='usd'),
+        XBRLFact(concept='test:MissingUnit', value=100, context_ref='ctx1', unit_ref='missing'),
+        XBRLFact(concept='test:NonNumeric', value='text', context_ref='ctx1', unit_ref='usd'),
+    ]
+    processor.facts.extend(test_facts)
+
+    # Run validation
     errors = processor.validate()
-    assert any('missing context' in error.lower() for error in errors)
 
+    # Verify specific error messages
+    error_texts = '\n'.join(errors)
+    assert 'missing context' in error_texts.lower()
+    assert 'missing unit' in error_texts.lower()
+    assert any('numeric' in err.lower() and 'unit' in err.lower() for err in errors)
 
-def test_validation_missing_unit(processor):
-    """Test validation catches numeric facts with missing unit references."""
-    processor.contexts['ctx1'] = XBRLContext(
-        id='ctx1',
-        entity='test',
-        instant=datetime.now()
-    )
-
-    processor.facts.append(XBRLFact(
-        concept='test:Value',
-        value=100,
-        context_ref='ctx1',
-        unit_ref='missing_unit'
-    ))
-
-    errors = processor.validate()
-    assert any('missing unit' in error.lower() for error in errors)
+    # Count errors
+    assert len(errors) == 3, "Should find exactly 3 validation errors"
 
 
 def test_context_periods(processor):
-    """Test different types of period handling in contexts."""
-    instant_xml = """
-    <xbrl xmlns:xbrli="http://www.xbrl.org/2001/instance">
-        <xbrli:context id="ctx1">
+    """Test comprehensive context period handling."""
+    xml = """
+    <xbrl xmlns:xbrli="http://www.xbrl.org/2001/instance"
+          xmlns:test="http://test.com/test">
+        <xbrli:context id="instant">
             <xbrli:entity>
-                <xbrli:identifier scheme="http://www.sec.gov/CIK">0000000001</xbrli:identifier>
+                <xbrli:identifier scheme="http://test.com">TEST</xbrli:identifier>
             </xbrli:entity>
             <xbrli:period>
                 <xbrli:instant>2024-01-01</xbrli:instant>
             </xbrli:period>
         </xbrli:context>
-    </xbrl>
-    """
-
-    duration_xml = """
-    <xbrl xmlns:xbrli="http://www.xbrl.org/2001/instance">
-        <xbrli:context id="ctx2">
+        <xbrli:context id="duration">
             <xbrli:entity>
-                <xbrli:identifier scheme="http://www.sec.gov/CIK">0000000001</xbrli:identifier>
+                <xbrli:identifier scheme="http://test.com">TEST</xbrli:identifier>
             </xbrli:entity>
             <xbrli:period>
                 <xbrli:startDate>2024-01-01</xbrli:startDate>
                 <xbrli:endDate>2024-12-31</xbrli:endDate>
             </xbrli:period>
+            <xbrli:scenario>
+                <test:type>Actual</test:type>
+            </xbrli:scenario>
         </xbrli:context>
     </xbrl>
     """
 
-    root1 = etree.fromstring(instant_xml)
-    root2 = etree.fromstring(duration_xml)
+    root = etree.fromstring(xml)
+    processor._parse_contexts(root)
 
-    processor._parse_contexts(root1)
-    processor._parse_contexts(root2)
+    # Test instant context
+    instant_ctx = processor.contexts['instant']
+    assert instant_ctx.is_instant
+    assert not instant_ctx.is_duration
+    assert instant_ctx.instant == datetime(2024, 1, 1)
+    assert instant_ctx.entity == 'http://test.com:TEST'
 
-    assert processor.contexts['ctx1'].instant is not None
-    assert processor.contexts['ctx2'].period_start is not None
-    assert processor.contexts['ctx2'].period_end is not None
+    # Test duration context
+    duration_ctx = processor.contexts['duration']
+    assert not duration_ctx.is_instant
+    assert duration_ctx.is_duration
+    assert duration_ctx.period_start == datetime(2024, 1, 1)
+    assert duration_ctx.period_end == datetime(2024, 12, 31)
+    assert duration_ctx.scenario is not None
+    assert 'type' in duration_ctx.scenario['segments'][0]
 
 
 @pytest.mark.integration
-def test_real_file_loading(processor, tmp_path):
-    """Test loading a real XBRL file (Novartis example)."""
-    # Get the path to the test directory
+def test_real_file_loading(processor):
+    """Test comprehensive real-world XBRL processing."""
     test_dir = Path(__file__).parent
     novartis_file = test_dir.parent / 'Novartis-2002-11-15.xml'
 
-    # Skip if files don't exist
     if not novartis_file.exists():
         pytest.skip(f"Novartis test files not found at {novartis_file}")
 
     processor.load_instance(novartis_file)
 
-    # Add more detailed assertions to help diagnose issues
+    # Test context loading
     assert len(processor.contexts) > 0, "No contexts were loaded"
+    assert 'Group2001AsOf' in processor.contexts, "Expected context not found"
+    assert processor.contexts['Group2001AsOf'].entity.endswith('Novartis Group')
+
+    # Test unit loading
     assert len(processor.units) > 0, "No units were loaded"
+    chf_units = [u for u in processor.units.values() if any('CHF' in m for m in u.measures)]
+    assert len(chf_units) > 0, "Expected CHF unit not found"
+
+    # Test fact loading
     assert len(processor.facts) > 0, "No facts were loaded"
 
-    # Test specific known values from the Novartis file
-    assert 'Group2001AsOf' in processor.contexts, "Expected context 'Group2001AsOf' not found"
-    assert processor.contexts['Group2001AsOf'].entity.endswith('Novartis Group'), \
-        "Incorrect entity for Group2001AsOf context"
+    # Test specific fact values
+    revenue_facts = [f for f in processor.facts if 'Revenue' in f.concept]
+    assert len(revenue_facts) > 0, "No revenue facts found"
+    assert all(isinstance(f.value, (int, float)) for f in revenue_facts)
 
-
-def test_novartis_debug(processor):
-    """Debug test for Novartis file loading."""
-    test_dir = Path(__file__).parent
-    novartis_file = test_dir.parent / 'Novartis-2002-11-15.xml'
-
-    if not novartis_file.exists():
-        pytest.skip(f"Novartis test files not found at {novartis_file}")
-
-    # Load and parse manually to debug
-    tree = etree.parse(str(novartis_file))
-    root = tree.getroot()
-
-    # Print namespaces for debugging
-    print("\nNamespaces found in document:")
-    for prefix, uri in root.nsmap.items():
-        print(f"{prefix}: {uri}")
-
-    # Find all context elements
-    contexts = root.findall('.//xbrli:context', processor.namespaces)
-    print(f"\nNumber of contexts found: {len(contexts)}")
-
-    # Debug first context if any exist
-    if contexts:
-        first_context = contexts[0]
-        print("\nFirst context structure:")
-        print(etree.tostring(first_context, pretty_print=True).decode())
-
-        # Try extracting entity
-        entity = processor._extract_entity(first_context)
-        print(f"\nExtracted entity: {entity}")
-
-        # Try extracting period
-        period_data = processor._extract_period(first_context)
-        print(f"\nExtracted period data: {period_data}")
-    else:
-        print("\nNo contexts found - check XPath and namespaces")
-
-    # Test namespace resolution
-    print("\nTesting namespace resolution:")
-    for prefix, uri in processor.namespaces.items():
-        print(f"Looking for elements with namespace {prefix}")
-        elements = root.findall(f'.//{{{uri}}}context')
-        print(f"Found {len(elements)} elements")
-
-
-def test_group_root_document(processor):
-    """Test parsing XBRL document with group root element."""
-    # Remove XML declaration and use simplified namespace
-    sample_xml = """
-    <group xmlns='http://www.xbrl.org/2001/instance'>
-        <context id="ctx1">
-            <entity>
-                <identifier scheme="http://www.test.com">TestCompany</identifier>
-            </entity>
-            <period>
-                <instant>2024-01-01</instant>
-            </period>
-        </context>
-    </group>
-    """
-    root = etree.fromstring(sample_xml.strip())
-    processor._parse_contexts(root)
-
-    assert len(processor.contexts) > 0, "No contexts were loaded"
-    assert "ctx1" in processor.contexts, "Expected context not found"
-    assert processor.contexts["ctx1"].entity == "http://www.test.com:TestCompany"
-
-    # Add additional test for the Novartis format
-    novartis_xml = """
-    <group xmlns='http://www.xbrl.org/2001/instance'>
-        <numericContext id="testContext" precision="18" cwa="true">
-            <entity>
-                <identifier scheme="http://www.novartis.com/group">Novartis Group</identifier>
-            </entity>
-            <period>
-                <instant>2001-12-31</instant>
-            </period>
-        </numericContext>
-    </group>
-    """
-    root = etree.fromstring(novartis_xml.strip())
-    processor.contexts.clear()  # Clear previous contexts
-    processor._parse_contexts(root)
-
-    assert len(processor.contexts) > 0, "No Novartis contexts were loaded"
-    assert "testContext" in processor.contexts, "Expected Novartis context not found"
+    # Validate full dataset
+    errors = processor.validate()
+    assert len(errors) == 0, f"Validation errors found:\n" + "\n".join(errors)

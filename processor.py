@@ -227,64 +227,72 @@ class XBRLProcessor:
 
     def _parse_units(self, root: etree.Element) -> None:
         """Parse unit definitions from the instance document."""
+        self.units = {}
         all_units = []
 
-        # Try standard standalone units
-        standalone_units = root.findall('.//xbrli:unit', self.namespaces)
+        # Try standard units
+        ns = {'xbrli': 'http://www.xbrl.org/2001/instance'}
+        standalone_units = root.findall('.//xbrli:unit', ns)
         if standalone_units:
             all_units.extend(standalone_units)
 
-        # Try units nested in numericContext elements
-        numeric_contexts = root.xpath('.//*[local-name()="numericContext"]')
-        for context in numeric_contexts:
-            nested_units = context.findall('.//unit', {'': 'http://www.xbrl.org/2001/instance'})
-            if nested_units:
-                all_units.extend(nested_units)
-
-        print(f"Debug: Found {len(all_units)} units")
-        if all_units:
-            print(f"Debug: First unit: {etree.tostring(all_units[0])}")
-
-        # Process all found units
-        for unit in all_units:
-            # Get unit ID either from direct attribute or parent numericContext
-            unit_id = unit.get('id')
-            if not unit_id:
-                parent = unit.getparent()
-                if parent is not None and parent.tag.endswith('numericContext'):
-                    unit_id = parent.get('id')
-
-            if not unit_id:
+        # Try finding numericContext elements and extract their units
+        for context in root.findall('.//numericContext', {'': 'http://www.xbrl.org/2001/instance'}):
+            context_id = context.get('id')
+            if not context_id:
                 continue
 
-            measures = []
-            numerator = []
-            denominator = []
-            divide = False
+            # Find unit within this context
+            unit = context.find('./unit', {'': 'http://www.xbrl.org/2001/instance'})
+            if unit is not None:
+                # Store reference to process this unit with its context ID
+                all_units.append((unit, context_id))
 
-            # Handle simple measures
-            measure_elements = unit.findall('.//measure', {'': 'http://www.xbrl.org/2001/instance'})
-            if not measure_elements:
-                measure_elements = unit.findall('.//xbrli:measure', self.namespaces)
+        print(f"Debug: Found {len(all_units)} units")
 
-            for measure in measure_elements:
+        # Process all found units
+        for unit_item in all_units:
+            if isinstance(unit_item, tuple):
+                unit, context_id = unit_item
+                self._process_unit_element(unit, context_id)
+            else:
+                self._process_unit_element(unit_item)
+
+    def _process_unit_element(self, unit: etree.Element, override_id: str = None) -> None:
+        """Process a single unit element."""
+        unit_id = override_id or unit.get('id')
+        if not unit_id:
+            return
+
+        measures = []
+        numerator = []
+        denominator = []
+        divide = False
+
+        # Try finding measure elements in the default instance namespace
+        for measure in unit.findall('./measure', {'': 'http://www.xbrl.org/2001/instance'}):
+            if measure.text:
+                measures.append(measure.text.strip())
+
+        # If no measures found, try with xbrli namespace
+        if not measures:
+            for measure in unit.findall('.//xbrli:measure', self.namespaces):
                 if measure.text:
-                    measures.append(measure.text)
+                    measures.append(measure.text.strip())
 
-            # Handle divide relationships
-            divide_elem = unit.find('.//divide', {'': 'http://www.xbrl.org/2001/instance'})
-            if not divide_elem:
-                divide_elem = unit.find('.//xbrli:divide', self.namespaces)
+        # Handle divide relationships
+        divide_elem = unit.find('./divide', {'': 'http://www.xbrl.org/2001/instance'})
+        if divide_elem is not None:
+            divide = True
+            for num_measure in divide_elem.findall('.//numerator//measure', {'': 'http://www.xbrl.org/2001/instance'}):
+                if num_measure.text:
+                    numerator.append(num_measure.text.strip())
+            for den_measure in divide_elem.findall('.//denominator//measure',
+                                                   {'': 'http://www.xbrl.org/2001/instance'}):
+                if den_measure.text:
+                    denominator.append(den_measure.text.strip())
 
-            if divide_elem is not None:
-                divide = True
-                for num in divide_elem.findall('.//measure', {'': 'http://www.xbrl.org/2001/instance'}):
-                    if num.text:
-                        numerator.append(num.text)
-                for den in divide_elem.findall('.//measure', {'': 'http://www.xbrl.org/2001/instance'}):
-                    if den.text:
-                        denominator.append(den.text)
-
+        if measures or numerator:  # Only create unit if we found any measures
             self.units[unit_id] = XBRLUnit(
                 id=unit_id,
                 measures=measures,
@@ -303,25 +311,29 @@ class XBRLProcessor:
 
     def _element_to_dict(self, element: etree.Element) -> dict:
         """Convert an XML element to a dictionary representation."""
-        result = {'tag': element.tag}
+        # Get the local name without namespace
+        tag = element.tag.split('}')[-1] if '}' in element.tag else element.tag
+
+        result = {}
+        # Add text value if present
         if element.text and element.text.strip():
-            result['value'] = element.text.strip()
+            result[tag] = element.text.strip()
+        # Add attributes if present
         if element.attrib:
-            result['attributes'] = dict(element.attrib)
-        if len(element):
-            result['children'] = [self._element_to_dict(child) for child in element]
+            for attr, value in element.attrib.items():
+                attr_name = attr.split('}')[-1] if '}' in attr else attr
+                result[f"{tag}@{attr_name}"] = value
+        # Add children recursively
+        for child in element:
+            child_dict = self._element_to_dict(child)
+            result.update(child_dict)
         return result
-    
-    def _parse_date(self, date_str: str) -> datetime:
-        """Parse XBRL date string to datetime object."""
-        try:
-            return datetime.strptime(date_str, '%Y-%m-%d')
-        except ValueError:
-            # Handle other date formats if needed
-            return datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S')
 
     def _parse_facts(self, root: etree.Element) -> None:
         """Extract facts from the instance document."""
+        # Clear existing facts to prevent duplicates
+        self.facts = []
+
         # Debug all namespaces in document
         print("Debug: Available namespaces:", root.nsmap)
 
@@ -351,6 +363,14 @@ class XBRLProcessor:
                 decimals = self._parse_numeric_attribute(child.get('decimals'))
                 precision = self._parse_numeric_attribute(child.get('precision'))
 
+                # Get unit reference either from attribute or numeric context
+                unit_ref = child.get('unitRef')
+                if not unit_ref and context_ref in self.contexts:
+                    # If numeric context has an embedded unit, use the context ID as the unit reference
+                    # since we've already extracted these units in _parse_units
+                    if self.contexts[context_ref] and context_ref in self.units:
+                        unit_ref = context_ref
+
                 # Extract value
                 value = self._extract_fact_value(child)
                 if value is not None:
@@ -358,7 +378,7 @@ class XBRLProcessor:
                         concept=self._get_concept_name(child),
                         value=value,
                         context_ref=context_ref,
-                        unit_ref=context_ref if isinstance(value, (int, float)) else None,
+                        unit_ref=unit_ref,
                         decimals=decimals,
                         precision=precision
                     )
@@ -369,6 +389,35 @@ class XBRLProcessor:
             print(f"Debug: First fact: {facts_found[0]}")
 
         self.facts.extend(facts_found)
+
+    def _parse_date(self, date_str: str) -> datetime:
+        """Parse XBRL date string to datetime object.
+
+        Args:
+            date_str: A date string in XBRL format (YYYY-MM-DD or YYYY-MM-DDThh:mm:ss)
+
+        Returns:
+            datetime: The parsed datetime object
+
+        Examples:
+            >>> processor._parse_date("2024-01-01")
+            datetime.datetime(2024, 1, 1, 0, 0)
+            >>> processor._parse_date("2024-01-01T12:00:00")
+            datetime.datetime(2024, 1, 1, 12, 0)
+        """
+        if not date_str:
+            return None
+
+        date_str = date_str.strip()
+
+        try:
+            # Try simple date format first
+            if 'T' not in date_str:
+                return datetime.strptime(date_str, '%Y-%m-%d')
+            # Try date+time format if needed
+            return datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S')
+        except ValueError as e:
+            raise ValueError(f"Unable to parse date '{date_str}': {str(e)}")
 
     def _get_concept_name(self, elem: etree.Element) -> str:
         """Get the concept name including namespace prefix."""
@@ -441,6 +490,12 @@ class XBRLProcessor:
                 elif fact.unit_ref not in self.units:
                     errors.append(
                         f"Fact {fact.concept} references missing unit {fact.unit_ref}"
+                    )
+            else:
+                # Non-numeric facts should not have unit references
+                if fact.unit_ref:
+                    errors.append(
+                        f"Non-numeric fact {fact.concept} should not have unit reference"
                     )
 
         return errors
