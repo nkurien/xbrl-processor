@@ -1,12 +1,11 @@
 # xbrl_processor.py
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Any
 from pathlib import Path
-import json
-import csv
 from datetime import datetime
 from lxml import etree
 import pandas as pd
+import json
 
 @dataclass
 class XBRLContext:
@@ -16,6 +15,22 @@ class XBRLContext:
     period_end: Optional[datetime] = None
     instant: Optional[datetime] = None
     scenario: Optional[Dict[str, Any]] = None
+    
+    @property
+    def is_duration(self) -> bool:
+        return self.period_start is not None and self.period_end is not None
+
+    @property
+    def is_instant(self) -> bool:
+        return self.instant is not None
+
+@dataclass
+class XBRLUnit:
+    id: str
+    measures: List[str]  # e.g., ['iso4217:USD'] or ['xbrli:pure']
+    divide: bool = False  # True if it's a divide relationship (e.g., shares/shares)
+    numerator: List[str] = field(default_factory=list)
+    denominator: List[str] = field(default_factory=list)
 
 @dataclass
 class XBRLFact:
@@ -29,55 +44,169 @@ class XBRLFact:
 class XBRLProcessor:
     def __init__(self):
         self.namespaces = {
-            'xbrli': 'http://www.xbrl.org/2003/instance',
-            'ix': 'http://www.xbrl.org/2013/inlineXBRL',
-            'link': 'http://www.xbrl.org/2003/linkbase',
-            'xlink': 'http://www.w3.org/1999/xlink'
+            'xbrli': 'http://www.xbrl.org/2001/instance',
+            'link': 'http://www.xbrl.org/2001/XLink/xbrllinkbase',
+            'xlink': 'http://www.w3.org/1999/xlink',
+            'iso4217': 'http://www.xbrl.org/2003/iso4217',
+            'iascf-pfs': 'http://www.xbrl.org/taxonomy/int/fr/ias/ci/pfs/2002-11-15'
         }
         self.contexts: Dict[str, XBRLContext] = {}
+        self.units: Dict[str, XBRLUnit] = {}
         self.facts: List[XBRLFact] = []
-        self.units: Dict[str, str] = {}
-        
-    def parse_file(self, file_path: Path) -> None:
-        """Parse an XBRL instance document."""
+        self.schema_refs: List[str] = []
+        self.taxonomy_tree = None
+        self.calculation_tree = None
+
+    def load_instance(self, instance_path: Path) -> None:
+        """Load and parse the main XBRL instance document."""
         try:
-            tree = etree.parse(str(file_path))
+            tree = etree.parse(str(instance_path))
             root = tree.getroot()
-            
-            # Parse contexts first as they're referenced by facts
-            self._parse_contexts(root)
-            # Parse units
-            self._parse_units(root)
-            # Parse facts
-            self._parse_facts(root)
-            
-        except etree.XMLSyntaxError as e:
-            raise ValueError(f"Invalid XML syntax: {str(e)}")
+
+            # Update namespaces from the document
+            for prefix, uri in root.nsmap.items():
+                if prefix is not None:  # Skip default namespace
+                    self.namespaces[prefix] = uri
+
+            # Handle both group and xbrl root elements
+            if root.tag.endswith('group'):
+                # If root is group, use it directly
+                process_root = root
+            else:
+                # Otherwise look for group element
+                group = root.find('.//group')
+                process_root = group if group is not None else root
+
+            # Parse the main components
+            self._parse_contexts(process_root)
+            if not self.contexts:
+                # Debug output
+                print("\nDebug information:")
+                print("Root tag:", root.tag)
+                print("Available elements:", [elem.tag for elem in root.iter()][:10])
+                print("Searching with xpath:", root.xpath('.//xbrli:context', namespaces=self.namespaces))
+
+            self._parse_units(process_root)
+            self._parse_facts(process_root)
+
         except Exception as e:
-            raise ValueError(f"Error parsing XBRL file: {str(e)}")
-    
+            raise ValueError(f"Error parsing XBRL instance: {str(e)}")
+
+    def load_taxonomy(self, taxonomy_path: Path) -> None:
+        """Load and parse the taxonomy schema."""
+        try:
+            self.taxonomy_tree = etree.parse(str(taxonomy_path))
+            # Add any taxonomy-specific namespaces
+            for prefix, uri in self.taxonomy_tree.getroot().nsmap.items():
+                if prefix and uri and prefix not in self.namespaces:
+                    self.namespaces[prefix] = uri
+
+        except Exception as e:
+            raise ValueError(f"Error loading taxonomy: {str(e)}")
+
+    def load_calculation(self, calculation_path: Path) -> None:
+        """Load and parse the calculation linkbase."""
+        try:
+            self.calculation_tree = etree.parse(str(calculation_path))
+            # Process calculation relationships here
+            self._process_calculation_links()
+            
+        except Exception as e:
+            raise ValueError(f"Error loading calculation linkbase: {str(e)}")
+
+    def _parse_numeric_attribute(self, value: Optional[str]) -> Optional[int]:
+        """Parse numeric attributes like decimals and precision."""
+        if value is None:
+            return None
+
+        try:
+            # Handle special values defined in the XBRL specification
+            if value == 'INF':
+                return float('inf')
+            return int(value)
+        except ValueError:
+            return None
+
     def _parse_contexts(self, root: etree.Element) -> None:
-        """Extract all contexts from the XBRL document."""
-        for context in root.findall('.//xbrli:context', self.namespaces):
+        """Parse context elements from the instance document."""
+        # List to collect all found contexts
+        contexts = []
+
+        # Try standard context elements first
+        contexts.extend(root.findall('.//xbrli:context', self.namespaces))
+
+        # Try numeric context elements
+        contexts.extend(root.findall('.//numericContext', {'': 'http://www.xbrl.org/2001/instance'}))
+
+        # Try with default namespace
+        if not contexts:
+            ns = {'': 'http://www.xbrl.org/2001/instance'}
+            contexts.extend(root.findall('.//context', ns))
+
+        # Try xpath with local-name for both types
+        if not contexts:
+            contexts.extend(root.xpath('.//*[local-name()="context" or local-name()="numericContext"]'))
+
+        print(f"Debug: Found {len(contexts)} contexts")
+        if contexts:
+            print(f"Debug: First context: {etree.tostring(contexts[0])}")
+
+        for context in contexts:
             context_id = context.get('id')
             if not context_id:
                 continue
-                
+
             entity = self._extract_entity(context)
-            period_data = self._extract_period(context)
-            scenario = self._extract_scenario(context)
-            
-            self.contexts[context_id] = XBRLContext(
-                id=context_id,
-                entity=entity,
-                **period_data,
-                scenario=scenario
-            )
+            if entity:  # Only process if we got a valid entity
+                period_data = self._extract_period(context)
+                scenario = self._extract_scenario(context)
+
+                self.contexts[context_id] = XBRLContext(
+                    id=context_id,
+                    entity=entity,
+                    scenario=scenario,
+                    **period_data
+                )
+
+    def _extract_entity(self, context: etree.Element) -> Optional[str]:
+        """Extract entity identifier from context."""
+        # Try different namespace patterns for identifier element
+        identifier = None
+
+        # Pattern 1: Using xbrli namespace
+        identifier = context.find('.//xbrli:identifier', self.namespaces)
+
+        # Pattern 2: Using default namespace
+        if identifier is None:
+            identifier = context.find('.//identifier', {'': 'http://www.xbrl.org/2001/instance'})
+
+        # Pattern 3: Using local-name
+        if identifier is None:
+            matches = context.xpath('.//*[local-name()="identifier"]')
+            if matches:
+                identifier = matches[0]
+
+        if identifier is not None and identifier.text:
+            scheme = identifier.get('scheme', '')
+            entity_text = identifier.text.strip()
+            return f"{scheme}:{entity_text}" if scheme else entity_text
+        return None
+
+    def register_namespace(self, prefix: str, uri: str) -> None:
+        """Register a new namespace mapping."""
+        self.namespaces[prefix] = uri
+        # Register with empty prefix for default namespace if needed
+        if uri == "http://www.xbrl.org/2001/instance":
+            self.namespaces[''] = uri
+        etree.register_namespace(prefix, uri)
     
     def _extract_entity(self, context: etree.Element) -> str:
         """Extract entity identifier from context."""
         entity_elem = context.find('.//xbrli:entity/xbrli:identifier', self.namespaces)
-        return entity_elem.text if entity_elem is not None else ''
+        if entity_elem is not None:
+            scheme = entity_elem.get('scheme', '')
+            return f"{scheme}:{entity_elem.text}" if entity_elem.text else ''
+        return ''
     
     def _extract_period(self, context: etree.Element) -> dict:
         """Extract period information from context."""
@@ -95,71 +224,187 @@ class XBRLProcessor:
             'period_start': self._parse_date(start.text) if start is not None else None,
             'period_end': self._parse_date(end.text) if end is not None else None
         }
-    
-    def _parse_date(self, date_str: str) -> datetime:
-        """Parse XBRL date string to datetime object."""
-        return datetime.strptime(date_str, '%Y-%m-%d')
-    
+
+    def _parse_units(self, root: etree.Element) -> None:
+        """Parse unit definitions from the instance document."""
+        all_units = []
+
+        # Try standard standalone units
+        standalone_units = root.findall('.//xbrli:unit', self.namespaces)
+        if standalone_units:
+            all_units.extend(standalone_units)
+
+        # Try units nested in numericContext elements
+        numeric_contexts = root.xpath('.//*[local-name()="numericContext"]')
+        for context in numeric_contexts:
+            nested_units = context.findall('.//unit', {'': 'http://www.xbrl.org/2001/instance'})
+            if nested_units:
+                all_units.extend(nested_units)
+
+        print(f"Debug: Found {len(all_units)} units")
+        if all_units:
+            print(f"Debug: First unit: {etree.tostring(all_units[0])}")
+
+        # Process all found units
+        for unit in all_units:
+            # Get unit ID either from direct attribute or parent numericContext
+            unit_id = unit.get('id')
+            if not unit_id:
+                parent = unit.getparent()
+                if parent is not None and parent.tag.endswith('numericContext'):
+                    unit_id = parent.get('id')
+
+            if not unit_id:
+                continue
+
+            measures = []
+            numerator = []
+            denominator = []
+            divide = False
+
+            # Handle simple measures
+            measure_elements = unit.findall('.//measure', {'': 'http://www.xbrl.org/2001/instance'})
+            if not measure_elements:
+                measure_elements = unit.findall('.//xbrli:measure', self.namespaces)
+
+            for measure in measure_elements:
+                if measure.text:
+                    measures.append(measure.text)
+
+            # Handle divide relationships
+            divide_elem = unit.find('.//divide', {'': 'http://www.xbrl.org/2001/instance'})
+            if not divide_elem:
+                divide_elem = unit.find('.//xbrli:divide', self.namespaces)
+
+            if divide_elem is not None:
+                divide = True
+                for num in divide_elem.findall('.//measure', {'': 'http://www.xbrl.org/2001/instance'}):
+                    if num.text:
+                        numerator.append(num.text)
+                for den in divide_elem.findall('.//measure', {'': 'http://www.xbrl.org/2001/instance'}):
+                    if den.text:
+                        denominator.append(den.text)
+
+            self.units[unit_id] = XBRLUnit(
+                id=unit_id,
+                measures=measures,
+                divide=divide,
+                numerator=numerator,
+                denominator=denominator
+            )
+
     def _extract_scenario(self, context: etree.Element) -> Optional[Dict[str, Any]]:
         """Extract scenario information from context."""
         scenario = context.find('.//xbrli:scenario', self.namespaces)
         if scenario is None:
             return None
             
-        return {'dimensions': self._extract_dimensions(scenario)}
+        return {'segments': [self._element_to_dict(child) for child in scenario]}
+
+    def _element_to_dict(self, element: etree.Element) -> dict:
+        """Convert an XML element to a dictionary representation."""
+        result = {'tag': element.tag}
+        if element.text and element.text.strip():
+            result['value'] = element.text.strip()
+        if element.attrib:
+            result['attributes'] = dict(element.attrib)
+        if len(element):
+            result['children'] = [self._element_to_dict(child) for child in element]
+        return result
     
-    def _extract_dimensions(self, scenario: etree.Element) -> Dict[str, str]:
-        """Extract dimensional information from scenario."""
-        dimensions = {}
-        for dim in scenario.getchildren():
-            if dim.tag.endswith('explicitMember'):
-                dimension = dim.get('dimension')
-                value = dim.text
-                if dimension and value:
-                    dimensions[dimension] = value
-        return dimensions
-    
-    def _parse_units(self, root: etree.Element) -> None:
-        """Extract unit definitions."""
-        for unit in root.findall('.//xbrli:unit', self.namespaces):
-            unit_id = unit.get('id')
-            measure = unit.find('.//xbrli:measure', self.namespaces)
-            if unit_id and measure is not None:
-                self.units[unit_id] = measure.text
-    
+    def _parse_date(self, date_str: str) -> datetime:
+        """Parse XBRL date string to datetime object."""
+        try:
+            return datetime.strptime(date_str, '%Y-%m-%d')
+        except ValueError:
+            # Handle other date formats if needed
+            return datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S')
+
     def _parse_facts(self, root: etree.Element) -> None:
-        """Extract all facts from the XBRL document."""
-        # Handle both standard XBRL and inline XBRL
-        for elem in root.xpath('.//*[not(self::xbrli:*) and not(self::link:*)]', 
-                             namespaces=self.namespaces):
-            context_ref = elem.get('contextRef')
-            if context_ref is None or context_ref not in self.contexts:
+        """Extract facts from the instance document."""
+        # Debug all namespaces in document
+        print("Debug: Available namespaces:", root.nsmap)
+
+        # Find facts from all relevant namespaces
+        facts_found = []
+
+        # Add known financial reporting namespaces
+        self.namespaces.update({
+            'iascf-pfs': 'http://www.xbrl.org/taxonomy/int/fr/ias/ci/pfs/2002-11-15',
+            'novartis': 'http://www.xbrl.org/taxonomy/int/fr/ias/pfs/2002-11-15/Novartis-2002-11-15'
+        })
+
+        # Find all elements that could be facts
+        for child in root.iter():
+            # Skip elements in instance namespace
+            if child.tag.startswith(f'{{{self.namespaces["xbrli"]}}}'):
                 continue
-                
-            value = self._extract_fact_value(elem)
-            if value is not None:
-                self.facts.append(XBRLFact(
-                    concept=self._get_concept_name(elem),
-                    value=value,
-                    context_ref=context_ref,
-                    unit_ref=elem.get('unitRef'),
-                    decimals=self._parse_numeric_attribute(elem.get('decimals')),
-                    precision=self._parse_numeric_attribute(elem.get('precision'))
-                ))
-    
+
+            # Get context reference - try both styles
+            context_ref = child.get('contextRef') or child.get('numericContext')
+            if not context_ref:
+                continue
+
+            # Only process if we have the context
+            if context_ref in self.contexts:
+                # Extract numeric attributes
+                decimals = self._parse_numeric_attribute(child.get('decimals'))
+                precision = self._parse_numeric_attribute(child.get('precision'))
+
+                # Extract value
+                value = self._extract_fact_value(child)
+                if value is not None:
+                    fact = XBRLFact(
+                        concept=self._get_concept_name(child),
+                        value=value,
+                        context_ref=context_ref,
+                        unit_ref=context_ref if isinstance(value, (int, float)) else None,
+                        decimals=decimals,
+                        precision=precision
+                    )
+                    facts_found.append(fact)
+
+        print(f"Debug: Found {len(facts_found)} facts")
+        if facts_found:
+            print(f"Debug: First fact: {facts_found[0]}")
+
+        self.facts.extend(facts_found)
+
     def _get_concept_name(self, elem: etree.Element) -> str:
-        """Get the concept name without namespace prefix."""
-        return etree.QName(elem).localname
-    
+        """Get the concept name including namespace prefix."""
+        tag = elem.tag
+        if tag.startswith('{'):
+            # Extract namespace and localname from Clark notation
+            ns_uri = tag[1:tag.index('}')]
+            localname = tag[tag.index('}') + 1:]
+
+            # Find prefix for this namespace
+            prefix = None
+            for pre, uri in self.namespaces.items():
+                if uri == ns_uri:
+                    prefix = pre
+                    break
+
+            if prefix:
+                return f"{prefix}:{localname}"
+
+        # Fallback to local name only
+        return tag.split('}')[-1]
+
     def _extract_fact_value(self, elem: etree.Element) -> Any:
         """Extract and type-convert fact values."""
         if elem.text is None:
             return None
-            
+
         value = elem.text.strip()
         if not value:
             return None
-            
+
+        # Check for special attributes
+        sign = elem.get('sign', '')
+        if sign == '-':
+            value = f'-{value}'
+
         # Try numeric conversion
         try:
             if '.' in value:
@@ -167,42 +412,53 @@ class XBRLProcessor:
             return int(value)
         except ValueError:
             return value
-    
-    def _parse_numeric_attribute(self, value: Optional[str]) -> Optional[int]:
-        """Parse numeric attributes like decimals and precision."""
-        if value is None:
-            return None
-        try:
-            return int(value)
-        except ValueError:
-            return None
-    
+
+    def _process_calculation_links(self) -> None:
+        """Process calculation relationships from the calculation linkbase."""
+        if self.calculation_tree is None:
+            return
+            
+        # Implementation will go here - we'll add this in the next iteration
+        pass
+
     def validate(self) -> List[str]:
-        """Perform basic validation of the XBRL document."""
+        """Perform validation checks."""
         errors = []
-        
-        # Check context references
+
+        # Context reference validation
         for fact in self.facts:
             if fact.context_ref not in self.contexts:
-                errors.append(f"Fact {fact.concept} references undefined context {fact.context_ref}")
-            
-            if fact.unit_ref and fact.unit_ref not in self.units:
-                errors.append(f"Fact {fact.concept} references undefined unit {fact.unit_ref}")
-        
+                errors.append(
+                    f"Fact {fact.concept} references missing context {fact.context_ref}"
+                )
+
+            # Unit validation for numeric facts
+            if isinstance(fact.value, (int, float)):
+                if not fact.unit_ref:
+                    errors.append(
+                        f"Numeric fact {fact.concept} missing required unit reference"
+                    )
+                elif fact.unit_ref not in self.units:
+                    errors.append(
+                        f"Fact {fact.concept} references missing unit {fact.unit_ref}"
+                    )
+
         return errors
-    
-    def export_to_json(self, output_path: Path) -> None:
-        """Export parsed XBRL data to JSON format."""
-        data = {
+
+    def to_dict(self) -> dict:
+        """Convert the parsed XBRL data to a dictionary format."""
+        return {
             'contexts': {k: vars(v) for k, v in self.contexts.items()},
-            'facts': [vars(f) for f in self.facts],
-            'units': self.units
+            'units': {k: vars(v) for k, v in self.units.items()},
+            'facts': [vars(f) for f in self.facts]
         }
-        
-        # Convert datetime objects to strings
-        json_str = json.dumps(data, default=str, indent=2)
-        output_path.write_text(json_str)
-    
+
+    def export_to_json(self, output_path: Path) -> None:
+        """Export the parsed data to JSON format."""
+        data = self.to_dict()
+        with output_path.open('w') as f:
+            json.dump(data, f, indent=2, default=str)
+
     def export_to_csv(self, output_path: Path) -> None:
         """Export facts to CSV format."""
         rows = []
@@ -212,7 +468,7 @@ class XBRLProcessor:
                 'concept': fact.concept,
                 'value': fact.value,
                 'context_id': fact.context_ref,
-                'unit': self.units.get(fact.unit_ref, '') if fact.unit_ref else '',
+                'unit': self.units[fact.unit_ref].measures[0] if fact.unit_ref else '',
                 'entity': context.entity,
                 'period_start': context.period_start,
                 'period_end': context.period_end,
