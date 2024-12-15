@@ -1,9 +1,10 @@
 import pytest
 from pathlib import Path
 from datetime import datetime
+import shutil
 from decimal import Decimal
 from lxml import etree
-from processor import XBRLProcessor, XBRLContext, XBRLUnit, XBRLFact
+from processor import XBRLProcessor, XBRLContext, XBRLUnit, XBRLFact, XBRLFolderProcessor
 
 
 @pytest.fixture
@@ -161,34 +162,178 @@ def test_context_periods(processor):
 
 
 @pytest.mark.integration
-def test_real_file_loading(processor):
-    """Test comprehensive real-world XBRL processing."""
-    test_dir = Path(__file__).parent
-    novartis_file = test_dir.parent / 'Novartis-2002-11-15.xml'
+def test_real_file_loading(folder_processor):
+    """Test processing of real XBRL files with comprehensive validation."""
+    test_dir = Path(__file__).parent.parent
+    novartis_folder = test_dir / "Novartis-2002-11-15"
 
-    if not novartis_file.exists():
-        pytest.skip(f"Novartis test files not found at {novartis_file}")
+    if not novartis_folder.exists():
+        pytest.skip(f"Novartis test folder not found at {novartis_folder}")
 
-    processor.load_instance(novartis_file)
+    # Process the folder
+    folder_processor.process_folder(novartis_folder)
 
     # Test context loading
-    assert len(processor.contexts) > 0, "No contexts were loaded"
-    assert 'Group2001AsOf' in processor.contexts, "Expected context not found"
-    assert processor.contexts['Group2001AsOf'].entity.endswith('Novartis Group')
+    assert len(folder_processor.contexts) > 0, "No contexts were loaded"
+    assert 'Group2001AsOf' in folder_processor.contexts, "Expected context not found"
+    assert folder_processor.contexts['Group2001AsOf'].entity.endswith('Novartis Group')
 
     # Test unit loading
-    assert len(processor.units) > 0, "No units were loaded"
-    chf_units = [u for u in processor.units.values() if any('CHF' in m for m in u.measures)]
+    assert len(folder_processor.units) > 0, "No units were loaded"
+    chf_units = [u for u in folder_processor.units.values()
+                 if any('CHF' in m for m in u.measures)]
     assert len(chf_units) > 0, "Expected CHF unit not found"
 
     # Test fact loading
-    assert len(processor.facts) > 0, "No facts were loaded"
+    assert len(folder_processor.facts) > 0, "No facts were loaded"
 
     # Test specific fact values
-    revenue_facts = [f for f in processor.facts if 'Revenue' in f.concept]
+    revenue_facts = [f for f in folder_processor.facts
+                     if 'Revenue' in f.concept]
     assert len(revenue_facts) > 0, "No revenue facts found"
-    assert all(isinstance(f.value, (int, float)) for f in revenue_facts)
+    assert all(isinstance(f.value, (int, float)) for f in revenue_facts), \
+        "Revenue facts should be numeric"
+
+    # Add specific data validation
+    revenue_2001 = next((f for f in revenue_facts
+                         if f.context_ref == 'Group2001ForPeriod'
+                         and 'RevenueFunction' in f.concept), None)
+    assert revenue_2001 is not None, "2001 revenue not found"
+    assert revenue_2001.value == 32038000000, "Unexpected 2001 revenue value"
 
     # Validate full dataset
-    errors = processor.validate()
+    errors = folder_processor.validate()
     assert len(errors) == 0, f"Validation errors found:\n" + "\n".join(errors)
+
+
+@pytest.fixture
+def folder_processor():
+    """Provide a fresh XBRLFolderProcessor instance for each test."""
+    return XBRLFolderProcessor()
+
+
+@pytest.fixture
+def novartis_folder(tmp_path):
+    """Create a temporary test folder with Novartis files."""
+    # First try the direct parent directory
+    test_dir = Path(__file__).parent.parent
+    source_folder = test_dir / "Novartis-2002-11-15"
+
+    # If not found, try the same directory as the test file
+    if not source_folder.exists():
+        source_folder = test_dir / "tests" / "Novartis-2002-11-15"
+
+    # Create the temporary folder
+    novartis_folder = tmp_path / "Novartis-2002-11-15"
+    novartis_folder.mkdir()
+
+    # Define the expected Novartis files
+    expected_files = [
+        "Novartis-2002-11-15.xml",  # Instance document
+        "Novartis-2002-11-15.xsd",  # Schema
+        "Novartis-2002-11-15-calculation.xml",
+        "Novartis-2002-11-15-labels.xml",
+        "Novartis-2002-11-15-presentation.xml",
+        "Novartis-2002-11-15-references.xml"
+    ]
+
+    if not source_folder.exists():
+        # If source folder doesn't exist, let's create a minimal test file
+        instance_file = novartis_folder / "Novartis-2002-11-15.xml"
+        instance_file.write_text("""
+        <?xml version="1.0" encoding="utf-8"?>
+        <xbrl xmlns='http://www.xbrl.org/2001/instance'>
+            <context id="ctx1">
+                <entity>
+                    <identifier scheme="http://www.test.com">TEST</identifier>
+                </entity>
+                <period>
+                    <instant>2024-01-01</instant>
+                </period>
+            </context>
+            <test:Revenue contextRef="ctx1">1000</test:Revenue>
+        </xbrl>
+        """)
+        print(f"Warning: Source folder not found at {source_folder}, created minimal test file")
+        return novartis_folder
+
+    # Copy files that exist
+    files_copied = 0
+    for filename in expected_files:
+        source_file = source_folder / filename
+        if source_file.exists():
+            shutil.copy2(source_file, novartis_folder / filename)
+            files_copied += 1
+        else:
+            print(f"Warning: Source file {filename} not found")
+
+    if files_copied == 0:
+        pytest.skip(f"No Novartis test files found in {source_folder}")
+
+    return novartis_folder
+
+
+def test_folder_processor_initialization(folder_processor):
+    """Test the folder processor initializes correctly."""
+    assert folder_processor.base_processor is not None
+    assert isinstance(folder_processor.discovered_files, dict)
+
+
+def test_file_discovery(folder_processor, novartis_folder):
+    """Test XBRL file discovery and categorization."""
+    # Print debug information about the test folder
+    print("\nDebug: Contents of test folder:")
+    for file in novartis_folder.iterdir():
+        print(f"  {file.name}")
+
+    folder_processor._discover_files(novartis_folder)
+
+    print("\nDebug: Discovered files:")
+    for name, file in folder_processor.discovered_files.items():
+        print(f"  {name}: {file.file_type}")
+
+    discovered_types = {f.file_type for f in folder_processor.discovered_files.values()}
+    assert len(folder_processor.discovered_files) > 0, "No files were discovered"
+    assert 'instance' in discovered_types, "No instance document found"
+
+
+def test_full_folder_processing(folder_processor, novartis_folder):
+    """Test end-to-end folder processing."""
+    print("\nDebug: Files in test folder:")
+    for file in novartis_folder.iterdir():
+        print(f"  {file.name}")
+
+    folder_processor.process_folder(novartis_folder)
+
+    # Basic data presence checks
+    assert len(folder_processor.contexts) > 0, "No contexts were loaded"
+    assert len(folder_processor.facts) > 0, "No facts were loaded"
+
+
+def test_invalid_folder_handling(folder_processor, tmp_path):
+    """Test handling of invalid folders and files."""
+    empty_folder = tmp_path / "empty"
+    empty_folder.mkdir()
+
+    with pytest.raises(ValueError, match="No XBRL instance document found"):
+        folder_processor.process_folder(empty_folder)
+
+    with pytest.raises(ValueError, match="is not a directory"):
+        folder_processor.process_folder(tmp_path / "nonexistent")
+
+
+def test_export_functionality(folder_processor, novartis_folder, tmp_path):
+    """Test export functionality with folder processor."""
+    folder_processor.process_folder(novartis_folder)
+
+    # Test JSON export
+    json_path = tmp_path / "output.json"
+    folder_processor.export_to_json(json_path)
+    assert json_path.exists()
+    assert json_path.stat().st_size > 0, "JSON file is empty"
+
+    # Test CSV export
+    csv_path = tmp_path / "output.csv"
+    folder_processor.export_to_csv(csv_path)
+    assert csv_path.exists()
+    assert csv_path.stat().st_size > 0, "CSV file is empty"
