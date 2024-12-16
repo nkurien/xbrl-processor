@@ -20,8 +20,8 @@ class XBRLFile:
 
 class XBRLFolderProcessor:
     def __init__(self):
-        self.base_processor = iXBRLProcessor()  # Use iXBRL processor instead
-        self.discovered_files: Dict[str, XBRLFile] = {}
+        self.base_processor = XBRLProcessor()  # Default to standard processor
+        self.discovered_files = {}
         self._namespace_patterns = {}
 
     def _analyze_xml_file(self, file_path: Path) -> Optional[XBRLFile]:
@@ -163,7 +163,6 @@ class XBRLFolderProcessor:
             if file.role_refs:
                 print(f"    Roles: {', '.join(file.role_refs.keys())}")
 
-
     def process_folder(self, folder_path: Path) -> None:
         """Process all XBRL files in a folder structure."""
         if not folder_path.is_dir():
@@ -173,7 +172,7 @@ class XBRLFolderProcessor:
 
         # Find instance or iXBRL documents
         instance_files = [f for f in self.discovered_files.values()
-                        if f.file_type in ('instance', 'ixbrl')]
+                          if f.file_type in ('instance', 'ixbrl')]
 
         if not instance_files:
             raise ValueError(f"No XBRL or iXBRL instance document found in {folder_path}")
@@ -181,9 +180,13 @@ class XBRLFolderProcessor:
         # Process main instance document first
         main_instance = instance_files[0]
         print(f"\nDebug: Loading main instance: {main_instance.path}")
+
+        # Create appropriate processor based on file type
         if main_instance.file_type == 'ixbrl':
+            self.base_processor = iXBRLProcessor()
             self.base_processor.load_ixbrl_instance(main_instance.path)
         else:
+            self.base_processor = XBRLProcessor()
             self.base_processor.load_instance(main_instance.path)
 
         # Process schema files
@@ -207,16 +210,19 @@ class XBRLFolderProcessor:
                 print(f"Warning: Error loading calculation {calc.path}: {e}")
 
     @property
-    def contexts(self) -> Dict[str, Any]:
-        return self.base_processor.contexts
+    def contexts(self):
+        """Access contexts from the base processor."""
+        return self.base_processor.contexts if self.base_processor else {}
 
     @property
-    def units(self) -> Dict[str, Any]:
-        return self.base_processor.units
+    def units(self):
+        """Access units from the base processor."""
+        return self.base_processor.units if self.base_processor else {}
 
     @property
-    def facts(self) -> List[Any]:
-        return self.base_processor.facts
+    def facts(self):
+        """Access facts from the base processor."""
+        return self.base_processor.facts if self.base_processor else []
 
     def validate(self) -> List[str]:
         return self.base_processor.validate()

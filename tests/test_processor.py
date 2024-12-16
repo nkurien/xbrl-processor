@@ -315,7 +315,7 @@ def test_invalid_folder_handling(folder_processor, tmp_path):
     empty_folder = tmp_path / "empty"
     empty_folder.mkdir()
 
-    with pytest.raises(ValueError, match="No XBRL instance document found"):
+    with pytest.raises(ValueError, match="No XBRL or iXBRL instance document found"):
         folder_processor.process_folder(empty_folder)
 
     with pytest.raises(ValueError, match="is not a directory"):
