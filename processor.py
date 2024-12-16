@@ -20,19 +20,22 @@ class XBRLFile:
 
 class XBRLFolderProcessor:
     def __init__(self):
-        self.base_processor = XBRLProcessor()
+        self.base_processor = iXBRLProcessor()  # Use iXBRL processor instead
         self.discovered_files: Dict[str, XBRLFile] = {}
-        self._namespace_patterns = {}  # Will be populated during discovery
+        self._namespace_patterns = {}
 
     def _analyze_xml_file(self, file_path: Path) -> Optional[XBRLFile]:
         """Analyze XML file structure to determine its type based on content."""
         try:
-            tree = etree.parse(str(file_path))
+            # Add more detailed error handling and debugging
+            print(f"Debug: Reading file {file_path}")
+            parser = etree.XMLParser(recover=True)  # More lenient parsing
+            tree = etree.parse(str(file_path), parser=parser)
             root = tree.getroot()
 
             # Get namespaces from root
             namespaces = {k if k is not None else '': v
-                          for k, v in root.nsmap.items()}
+                         for k, v in root.nsmap.items()}
 
             root_element = etree.QName(root).localname
             roles = self._extract_roles(root)
@@ -51,8 +54,8 @@ class XBRLFolderProcessor:
 
             return None
 
-        except (etree.XMLSyntaxError, IOError) as e:
-            print(f"Warning: Error analyzing {file_path}: {e}")
+        except Exception as e:
+            print(f"Warning: Error analyzing {file_path}: {str(e)}")
             return None
 
     def _extract_roles(self, root: etree.Element) -> Dict[str, str]:
@@ -74,7 +77,21 @@ class XBRLFolderProcessor:
         root_tag = etree.QName(root.tag).localname
         ns_values = set(namespaces.values())
 
-        # Analyze root structure
+        # Debug namespace information
+        print(f"Debug: Root tag: {root_tag}")
+        print(f"Debug: Namespaces: {namespaces}")
+
+        # Check for iXBRL by looking for specific namespaces
+        if 'http://www.xbrl.org/2013/inlineXBRL' in ns_values:
+            print("Debug: Found iXBRL namespace")
+            return 'ixbrl'
+
+        # Check for iXBRL based on root element
+        if root_tag.lower() == 'html' and any('inline' in ns.lower() for ns in ns_values):
+            print("Debug: Found iXBRL based on HTML root and inline namespace")
+            return 'ixbrl'
+
+        # Existing detection logic...
         if root_tag in {'xbrl', 'group'}:
             if any('instance' in ns.lower() for ns in ns_values):
                 return 'instance'
@@ -122,11 +139,15 @@ class XBRLFolderProcessor:
         """Discover and analyze all XML files in the folder."""
         self.discovered_files.clear()
 
-        xml_files = list(folder_path.glob('*.xml')) + list(folder_path.glob('*.xsd'))
+        # Update file patterns to include .htm files
+        xml_files = list(folder_path.glob('*.xml')) + \
+                   list(folder_path.glob('*.xsd')) + \
+                   list(folder_path.glob('*.htm'))  # Add .htm files
 
         # First pass: collect namespace patterns
         for file_path in xml_files:
             if file_path.is_file():
+                print(f"\nDebug: Analyzing {file_path.name}")
                 xbrl_file = self._analyze_xml_file(file_path)
                 if xbrl_file:
                     self.discovered_files[file_path.name] = xbrl_file
@@ -150,17 +171,20 @@ class XBRLFolderProcessor:
 
         self._discover_files(folder_path)
 
-        # Find instance documents
+        # Find instance or iXBRL documents
         instance_files = [f for f in self.discovered_files.values()
-                          if f.file_type == 'instance']
+                        if f.file_type in ('instance', 'ixbrl')]
 
         if not instance_files:
-            raise ValueError(f"No XBRL instance document found in {folder_path}")
+            raise ValueError(f"No XBRL or iXBRL instance document found in {folder_path}")
 
         # Process main instance document first
         main_instance = instance_files[0]
         print(f"\nDebug: Loading main instance: {main_instance.path}")
-        self.base_processor.load_instance(main_instance.path)
+        if main_instance.file_type == 'ixbrl':
+            self.base_processor.load_ixbrl_instance(main_instance.path)
+        else:
+            self.base_processor.load_instance(main_instance.path)
 
         # Process schema files
         schema_files = [f for f in self.discovered_files.values()
@@ -729,3 +753,204 @@ class XBRLProcessor:
         
         df = pd.DataFrame(rows)
         df.to_csv(output_path, index=False)
+
+
+class iXBRLProcessor(XBRLProcessor):
+    """Extension of XBRLProcessor to handle Inline XBRL (iXBRL) documents."""
+
+    def __init__(self):
+        super().__init__()
+        self.namespaces.update({
+            'ix': 'http://www.xbrl.org/2013/inlineXBRL',
+            'ixt': 'http://www.xbrl.org/inlineXBRL/transformation/2020-02-12',
+            'ixt-sec': 'http://www.sec.gov/inlineXBRL/transformation/2015-08-31',
+            'html': 'http://www.w3.org/1999/xhtml'  # Add HTML namespace with explicit prefix
+        })
+
+    def load_ixbrl_instance(self, instance_path: Path) -> None:
+        """Load and parse an Inline XBRL (iXBRL) document."""
+        try:
+            print("\nDebug: Starting iXBRL parsing")
+            tree = etree.parse(str(instance_path))
+            root = tree.getroot()
+
+            # Update namespaces from the document
+            self.namespaces.update(root.nsmap)
+
+            # First find the hidden section which often contains contexts and units
+            hidden = root.find('.//ix:hidden', self.namespaces)
+            if hidden is not None:
+                print("Debug: Found hidden section")
+                self._parse_hidden_section(hidden)
+
+            # If no contexts found in hidden section, look in the main document
+            if not self.contexts:
+                print("Debug: Looking for contexts in main document")
+                self._parse_contexts(root)
+
+            # Same for units
+            if not self.units:
+                print("Debug: Looking for units in main document")
+                self._parse_units(root)
+
+            # Parse facts
+            print("\nDebug: Parsing facts")
+            self._parse_ixbrl_facts(root)
+
+            print(f"\nDebug: Parsing complete:")
+            print(f"- Contexts: {len(self.contexts)}")
+            print(f"- Units: {len(self.units)}")
+            print(f"- Facts: {len(self.facts)}")
+
+            # Print sample of what was found
+            if self.facts:
+                print("\nDebug: Sample facts:")
+                for fact in self.facts[:3]:
+                    print(f"- {fact.concept}: {fact.value}")
+
+        except Exception as e:
+            print(f"Error parsing iXBRL instance: {str(e)}")
+            raise
+
+    def _parse_hidden_section(self, hidden_elem: etree.Element) -> None:
+        """Parse the hidden section of an iXBRL document."""
+        print("\nDebug: Processing hidden section")
+
+        # Process hidden contexts
+        contexts = hidden_elem.findall('.//xbrli:context', self.namespaces)
+        print(f"Debug: Found {len(contexts)} contexts in hidden section")
+        for context in contexts:
+            ctx_id = context.get('id')
+            if ctx_id:
+                entity = self._extract_entity(context)
+                period_data = self._extract_period(context)
+                scenario = self._extract_scenario(context)
+
+                self.contexts[ctx_id] = XBRLContext(
+                    id=ctx_id,
+                    entity=entity,
+                    scenario=scenario,
+                    **period_data
+                )
+
+        # Process hidden units
+        units = hidden_elem.findall('.//xbrli:unit', self.namespaces)
+        print(f"Debug: Found {len(units)} units in hidden section")
+        for unit in units:
+            self._process_unit_element(unit)
+
+    def _parse_ixbrl_facts(self, root: etree.Element) -> None:
+        """Extract facts from iXBRL elements."""
+        self.facts = []
+
+        # Use findall instead of xpath to avoid namespace issues
+        def find_all_facts(elem, tag):
+            # Construct the tag with namespace
+            ns_tag = f'{{{self.namespaces["ix"]}}}{tag}'
+            return elem.findall(f'.//{ns_tag}')
+
+        # Define all the types of facts we need to look for
+        fact_types = ['nonNumeric', 'nonFraction', 'fraction']
+
+        for fact_type in fact_types:
+            elements = find_all_facts(root, fact_type)
+            print(f"Debug: Found {len(elements)} {fact_type} facts")
+
+            for elem in elements:
+                try:
+                    fact = self._process_ixbrl_fact(elem)
+                    if fact is not None:
+                        self.facts.append(fact)
+                except Exception as e:
+                    print(f"Warning: Error processing {fact_type} fact: {e}")
+
+    def _process_ixbrl_fact(self, elem: etree.Element) -> Optional[XBRLFact]:
+        """Process a single iXBRL fact element."""
+        try:
+            # Get required attributes
+            concept = elem.get('name')
+            context_ref = elem.get('contextRef')
+
+            if not (concept and context_ref):
+                return None
+
+            # Get optional attributes
+            unit_ref = elem.get('unitRef')
+            format = elem.get('format')
+            scale = elem.get('scale')
+            decimals = self._parse_numeric_attribute(elem.get('decimals'))
+            precision = self._parse_numeric_attribute(elem.get('precision'))
+
+            # Get the text value using string concatenation instead of xpath
+            value = self._get_element_text(elem)
+
+            # Handle transforms if specified
+            if format:
+                value = self._apply_transform(value, format)
+
+            # Handle scaling
+            if scale and value:
+                try:
+                    scale_factor = int(scale)
+                    value = str(float(value) * (10 ** scale_factor))
+                except (ValueError, TypeError):
+                    pass
+
+            return XBRLFact(
+                concept=concept,
+                value=value,
+                context_ref=context_ref,
+                unit_ref=unit_ref,
+                decimals=decimals,
+                precision=precision
+            )
+
+        except Exception as e:
+            print(f"Warning: Error processing fact {elem.get('name', 'unknown')}: {e}")
+            return None
+
+    def _get_element_text(self, elem: etree.Element) -> str:
+        """Get all text content from an element, handling nested elements."""
+        result = []
+        if elem.text:
+            result.append(elem.text.strip())
+
+        for child in elem:
+            if child.tail:
+                result.append(child.tail.strip())
+            # If the child has its own text, process it too
+            child_text = self._get_element_text(child)
+            if child_text:
+                result.append(child_text)
+
+        return ' '.join(filter(None, result))
+
+    def _apply_transform(self, value: str, format: str) -> str:
+        """Apply iXBRL transformation rules to the value."""
+        # Basic transforms - expand as needed
+        if format.startswith('ixt:num'):
+            # Remove any non-numeric characters except . and -
+            value = ''.join(c for c in value if c.isdigit() or c in '.-')
+        elif format == 'ixt-sec:duryear':
+            # Convert duration to years
+            try:
+                value = str(float(value))
+            except ValueError:
+                pass
+        return value
+
+    def _parse_units(self, root: etree.Element) -> None:
+        """Override to handle both standard and iXBRL units."""
+        # Try finding units with explicit namespace
+        units = root.findall('.//xbrli:unit', self.namespaces)
+
+        if not units:
+            # Try alternate approaches
+            for ns in ['', 'http://www.xbrl.org/2003/instance']:
+                units = root.findall(f'.//{{{ns}}}unit')
+                if units:
+                    break
+
+        print(f"Debug: Found {len(units)} units")
+        for unit in units:
+            self._process_unit_element(unit)
