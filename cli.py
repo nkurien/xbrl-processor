@@ -1,12 +1,12 @@
 # cli.py
 import argparse
 from pathlib import Path
-from processor import XBRLProcessor
+from processor import XBRLProcessor, XBRLFolderProcessor
 
 
 def main():
     parser = argparse.ArgumentParser(description='XBRL Document Processor')
-    parser.add_argument('input_file', type=str, help='Path to input XBRL file')
+    parser.add_argument('input', type=str, help='Path to XBRL file or folder')
     parser.add_argument('--validate', action='store_true', help='Validate the XBRL document')
     parser.add_argument('--export-json', type=str, help='Export to JSON file')
     parser.add_argument('--export-csv', type=str, help='Export to CSV file')
@@ -14,27 +14,36 @@ def main():
     args = parser.parse_args()
 
     try:
-        processor = XBRLProcessor()
-        input_path = Path(args.input_file)
-        base_path = input_path.parent
+        input_path = Path(args.input)
 
-        print(f"Processing {input_path}...")
+        if not input_path.exists():
+            print(f"Error: Path {input_path} does not exist")
+            return 1
 
-        # Load all necessary files
-        processor.load_instance(input_path)
+        # Automatically detect if it's a file or folder
+        if input_path.is_dir():
+            processor = XBRLFolderProcessor()
+            print(f"Processing XBRL files in {input_path}...")
+            processor.process_folder(input_path)
+        else:
+            processor = XBRLProcessor()
+            print(f"Processing {input_path}...")
+            processor.load_instance(input_path)
 
-        # Try to load corresponding taxonomy and calculation files
-        taxonomy_path = base_path / f"{input_path.stem}.xsd"
-        calculation_path = base_path / f"{input_path.stem}-calculation.xml"
+            # Check for related files
+            base_path = input_path.parent
+            taxonomy_path = base_path / f"{input_path.stem}.xsd"
+            calculation_path = base_path / f"{input_path.stem}-calculation.xml"
 
-        if taxonomy_path.exists():
-            print(f"Loading taxonomy: {taxonomy_path}")
-            processor.load_taxonomy(taxonomy_path)
+            if taxonomy_path.exists():
+                print(f"Loading taxonomy: {taxonomy_path}")
+                processor.load_taxonomy(taxonomy_path)
 
-        if calculation_path.exists():
-            print(f"Loading calculation linkbase: {calculation_path}")
-            processor.load_calculation(calculation_path)
+            if calculation_path.exists():
+                print(f"Loading calculation linkbase: {calculation_path}")
+                processor.load_calculation(calculation_path)
 
+        # Handle validation and exports
         if args.validate:
             errors = processor.validate()
             if errors:
