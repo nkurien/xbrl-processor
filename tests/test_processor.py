@@ -4,7 +4,7 @@ from datetime import datetime
 import shutil
 from decimal import Decimal
 from lxml import etree
-from processor import XBRLProcessor, XBRLContext, XBRLUnit, XBRLFact, XBRLFolderProcessor
+from processor import XBRLProcessor, XBRLContext, XBRLUnit, XBRLFact, XBRLFolderProcessor, iXBRLProcessor
 
 
 @pytest.fixture
@@ -337,3 +337,220 @@ def test_export_functionality(folder_processor, novartis_folder, tmp_path):
     folder_processor.export_to_csv(csv_path)
     assert csv_path.exists()
     assert csv_path.stat().st_size > 0, "CSV file is empty"
+
+
+@pytest.fixture
+def ixbrl_processor():
+    """Provide a fresh iXBRLProcessor instance for each test."""
+    return iXBRLProcessor()
+
+
+@pytest.fixture
+def sample_ixbrl():
+    """Provide sample iXBRL content with modern features."""
+    xml_str = """<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" 
+      xmlns:ix="http://www.xbrl.org/2013/inlineXBRL"
+      xmlns:ixt="http://www.xbrl.org/inlineXBRL/transformation/2020-02-12"
+      xmlns:xbrli="http://www.xbrl.org/2001/instance"
+      xmlns:us-gaap="http://fasb.org/us-gaap/2021"
+      xmlns:dei="http://xbrl.sec.gov/dei/2021">
+    <head>
+        <meta charset="UTF-8"/>
+        <title>Test iXBRL Document</title>
+    </head>
+    <body>
+        <div style="display:none">
+            <ix:hidden>
+                <xbrli:context id="FY2023">
+                    <xbrli:entity>
+                        <xbrli:identifier scheme="http://www.sec.gov/CIK">0000789019</xbrli:identifier>
+                    </xbrli:entity>
+                    <xbrli:period>
+                        <xbrli:instant>2023-12-31</xbrli:instant>
+                    </xbrli:period>
+                </xbrli:context>
+                <xbrli:unit id="USD">
+                    <xbrli:measure>iso4217:USD</xbrli:measure>
+                </xbrli:unit>
+                <xbrli:unit id="shares">
+                    <xbrli:measure>xbrli:shares</xbrli:measure>
+                </xbrli:unit>
+            </ix:hidden>
+        </div>
+        <div>
+            <p>Revenue for the year: 
+                <ix:nonFraction name="us-gaap:Revenue" 
+                              contextRef="FY2023" 
+                              unitRef="USD" 
+                              decimals="-6"
+                              format="ixt:numdotdecimal"
+                              scale="6">386,017</ix:nonFraction> million
+            </p>
+            <p>Shares outstanding: 
+                <ix:nonFraction name="us-gaap:SharesOutstanding" 
+                              contextRef="FY2023" 
+                              unitRef="shares" 
+                              format="ixt:numcommadot">15,725,449</ix:nonFraction>
+            </p>
+            <p>Company name: 
+                <ix:nonNumeric name="dei:EntityRegistrantName" 
+                             contextRef="FY2023">Meta Platforms, Inc.</ix:nonNumeric>
+            </p>
+        </div>
+    </body>
+</html>"""
+    return xml_str.encode('utf-8')
+
+
+def test_ixbrl_hidden_section_parsing(ixbrl_processor, sample_ixbrl):
+    """Test parsing of the hidden section containing contexts and units."""
+    root = etree.fromstring(sample_ixbrl)
+    hidden = root.find('.//ix:hidden', ixbrl_processor.namespaces)
+    assert hidden is not None
+
+    ixbrl_processor._parse_hidden_section(hidden)
+
+    # Test contexts
+    assert 'FY2023' in ixbrl_processor.contexts
+    context = ixbrl_processor.contexts['FY2023']
+    assert context.entity == 'http://www.sec.gov/CIK:0000789019'
+    assert context.instant == datetime(2023, 12, 31)
+
+    # Test units
+    assert 'USD' in ixbrl_processor.units
+    assert 'shares' in ixbrl_processor.units
+    usd_unit = ixbrl_processor.units['USD']
+    assert 'iso4217:USD' in usd_unit.measures
+
+
+def test_ixbrl_transformations(ixbrl_processor):
+    """Test various iXBRL transformation rules."""
+
+    def check_transform(input_val, format_type, expected):
+        elem = etree.Element(f'{{{ixbrl_processor.namespaces["ix"]}}}nonFraction',
+                             format=format_type,
+                             name="test:value",
+                             contextRef="ctx1")
+        elem.text = input_val
+        fact = ixbrl_processor._process_ixbrl_fact(elem)
+        assert str(fact.value) == expected, f"Transform {format_type} failed for {input_val}"
+
+    test_cases = [
+        ('1,234.56', 'ixt:numdotdecimal', '1234.56'),
+        ('1.234,56', 'ixt:numcommadot', '1234.56'),
+        ('(1234.56)', 'ixt:numdotdecimal', '-1234.56'),
+        ('12.5%', 'ixt:numwordsen', '12.5'),
+        ('$1,234.56', 'ixt:numdotdecimal', '1234.56'),
+        ('€1.234,56', 'ixt:numcommadot', '1234.56'),
+        ('123.456.789,01', 'ixt:numcommadot', '123456789.01'),
+        ('(123,456.78)', 'ixt:numdotdecimal', '-123456.78')
+    ]
+
+    for input_val, format_type, expected in test_cases:
+        check_transform(input_val, format_type, expected)
+
+
+def test_ixbrl_scale_handling(ixbrl_processor):
+    """Test handling of scale factors in iXBRL facts."""
+    test_cases = [
+        # (input value, scale, format, expected result)
+        ('1000', '3', 'ixt:numdotdecimal', '1000000'),
+        ('1000', '-3', 'ixt:numdotdecimal', '1'),
+        ('1234.5', '6', 'ixt:numdotdecimal', '1234500000'),
+        ('0.001234', '-3', 'ixt:numdotdecimal', '0.000001234'),
+        # Add some edge cases
+        ('0', '3', 'ixt:numdotdecimal', '0'),
+        ('-1000', '3', 'ixt:numdotdecimal', '-1000000'),
+        ('1.23456', '-2', 'ixt:numdotdecimal', '0.0123456')
+    ]
+
+    for value, scale, format_type, expected in test_cases:
+        # Create test element
+        elem = etree.Element(
+            f'{{{ixbrl_processor.namespaces["ix"]}}}nonFraction',
+            name="test:value",
+            contextRef="ctx1",
+            scale=scale,
+            format=format_type
+        )
+        elem.text = value
+
+        # Process the fact
+        fact = ixbrl_processor._process_ixbrl_fact(elem)
+
+        # Convert both expected and actual to Decimal for comparison
+        expected_decimal = Decimal(expected)
+        actual_decimal = Decimal(str(fact.value))
+
+        assert actual_decimal == expected_decimal, \
+            f"Scale {scale} failed for {value}. Expected {expected}, got {fact.value}"
+
+
+def test_ixbrl_error_handling(ixbrl_processor):
+    """Test error handling for malformed iXBRL content."""
+    malformed_cases = [
+        '<ix:nonFraction xmlns:ix="http://www.xbrl.org/2013/inlineXBRL" scale="invalid">1000</ix:nonFraction>',
+        '<ix:nonFraction xmlns:ix="http://www.xbrl.org/2013/inlineXBRL">1000</ix:nonFraction>',
+        '<ix:nonFraction xmlns:ix="http://www.xbrl.org/2013/inlineXBRL" format="invalid">1000</ix:nonFraction>'
+    ]
+
+    for xml in malformed_cases:
+        try:
+            elem = etree.fromstring(xml.encode('utf-8'))
+            fact = ixbrl_processor._process_ixbrl_fact(elem)
+            assert fact is None or fact.value is None, f"Should handle malformed element: {xml}"
+        except (etree.XMLSyntaxError, ValueError):
+            continue
+
+
+@pytest.mark.integration
+def test_full_ixbrl_document_processing(ixbrl_processor, tmp_path, sample_ixbrl):
+    """Integration test for processing a complete iXBRL document."""
+    # Create a test file with the sample content
+    test_file = tmp_path / "test.xhtml"
+    test_file.write_bytes(sample_ixbrl)
+
+    # Process the document
+    ixbrl_processor.load_ixbrl_instance(test_file)
+
+    # Basic validations
+    assert len(ixbrl_processor.contexts) > 0, "No contexts loaded"
+    assert len(ixbrl_processor.units) > 0, "No units loaded"
+    assert len(ixbrl_processor.facts) > 0, "No facts loaded"
+
+    # Test specific fact values
+    facts = {f.concept: f for f in ixbrl_processor.facts}
+
+    assert 'us-gaap:Revenue' in facts
+    revenue = facts['us-gaap:Revenue']
+    assert Decimal(revenue.value) == Decimal('386017000000')
+
+    assert 'dei:EntityRegistrantName' in facts
+    company = facts['dei:EntityRegistrantName']
+    assert company.value == 'Meta Platforms, Inc.'
+    assert company.unit_ref is None
+
+
+def test_nested_ixbrl_facts(ixbrl_processor):
+    """Test handling of nested iXBRL facts."""
+    nested_xml = b"""<?xml version="1.0" encoding="UTF-8"?>
+    <html xmlns="http://www.w3.org/1999/xhtml" 
+          xmlns:ix="http://www.xbrl.org/2013/inlineXBRL">
+        <body>
+            <div>
+                <ix:nonFraction name="test:total" contextRef="ctx1">
+                    <ix:nonFraction name="test:part1" contextRef="ctx1">100</ix:nonFraction> +
+                    <ix:nonFraction name="test:part2" contextRef="ctx1">200</ix:nonFraction>
+                </ix:nonFraction>
+            </div>
+        </body>
+    </html>"""
+
+    root = etree.fromstring(nested_xml)
+    facts = list(ixbrl_processor._parse_ixbrl_facts(root))
+
+    # Should extract all facts
+    assert len(facts) == 3
+    concepts = {f.concept for f in facts}
+    assert concepts == {'test:total', 'test:part1', 'test:part2'}

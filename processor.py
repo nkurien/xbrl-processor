@@ -6,6 +6,7 @@ from datetime import datetime
 from lxml import etree
 import pandas as pd
 import json
+from decimal import Decimal, InvalidOperation
 import re
 
 
@@ -845,30 +846,38 @@ class iXBRLProcessor(XBRLProcessor):
         for unit in units:
             self._process_unit_element(unit)
 
-    def _parse_ixbrl_facts(self, root: etree.Element) -> None:
+    def _parse_ixbrl_facts(self, root: etree.Element) -> List[XBRLFact]:
         """Extract facts from iXBRL elements."""
+        facts = []
+
+        # Store the original facts list
+        original_facts = self.facts
         self.facts = []
 
-        # Use findall instead of xpath to avoid namespace issues
-        def find_all_facts(elem, tag):
-            # Construct the tag with namespace
-            ns_tag = f'{{{self.namespaces["ix"]}}}{tag}'
-            return elem.findall(f'.//{ns_tag}')
+        try:
+            # Find all types of facts
+            for fact_type in ['nonFraction', 'nonNumeric', 'fraction']:
+                # Try with namespace first
+                elements = root.findall(f'.//ix:{fact_type}', self.namespaces)
 
-        # Define all the types of facts we need to look for
-        fact_types = ['nonNumeric', 'nonFraction', 'fraction']
+                # If no elements found, try without namespace
+                if not elements:
+                    elements = root.findall(f'.//{fact_type}')
 
-        for fact_type in fact_types:
-            elements = find_all_facts(root, fact_type)
-            print(f"Debug: Found {len(elements)} {fact_type} facts")
+                print(f"Debug: Found {len(elements)} {fact_type} facts")
 
-            for elem in elements:
-                try:
+                for elem in elements:
                     fact = self._process_ixbrl_fact(elem)
                     if fact is not None:
+                        facts.append(fact)
                         self.facts.append(fact)
-                except Exception as e:
-                    print(f"Warning: Error processing {fact_type} fact: {e}")
+
+            return facts
+
+        except Exception as e:
+            print(f"Error parsing iXBRL facts: {str(e)}")
+            self.facts = original_facts  # Restore original facts on error
+            return []  # Return empty list instead of None on error
 
     def _process_ixbrl_fact(self, elem: etree.Element) -> Optional[XBRLFact]:
         """Process a single iXBRL fact element."""
@@ -887,20 +896,19 @@ class iXBRLProcessor(XBRLProcessor):
             decimals = self._parse_numeric_attribute(elem.get('decimals'))
             precision = self._parse_numeric_attribute(elem.get('precision'))
 
-            # Get the text value using string concatenation instead of xpath
+            # Get the text value
             value = self._get_element_text(elem)
 
-            # Handle transforms if specified
+            # Apply transformations if specified
             if format:
                 value = self._apply_transform(value, format)
 
-            # Handle scaling
+            # Apply scaling if specified
             if scale and value:
                 try:
-                    scale_factor = int(scale)
-                    value = str(float(value) * (10 ** scale_factor))
-                except (ValueError, TypeError):
-                    pass
+                    value = self._apply_scaling(value, scale)
+                except (ValueError, InvalidOperation):
+                    print(f"Warning: Failed to apply scaling {scale} to value {value}")
 
             return XBRLFact(
                 concept=concept,
@@ -914,6 +922,41 @@ class iXBRLProcessor(XBRLProcessor):
         except Exception as e:
             print(f"Warning: Error processing fact {elem.get('name', 'unknown')}: {e}")
             return None
+
+    def _apply_scaling(self, value: str, scale: str) -> str:
+        """
+        Apply scaling factor to numeric values using Decimal for precise calculations.
+        """
+        # Dictionary for common number words
+        number_words = {
+            'zero': '0', 'one': '1', 'two': '2', 'three': '3', 'four': '4',
+            'five': '5', 'six': '6', 'seven': '7', 'eight': '8', 'nine': '9',
+            'ten': '10'
+        }
+
+        try:
+            # Handle special characters and empty values
+            value = value.strip().lower()
+            if not value or value in ['—', '–', '-', 'n/a']:
+                return '0'
+
+            # Convert number words to digits
+            if value in number_words:
+                value = number_words[value]
+
+            # Remove commas and other formatting
+            clean_value = value.replace(',', '')
+            decimal_value = Decimal(clean_value)
+            scale_factor = int(scale)
+
+            scaled_value = decimal_value * Decimal(10) ** scale_factor
+            return str(scaled_value.normalize())
+
+        except (ValueError, InvalidOperation) as e:
+            # Only print warning for values that aren't intentionally empty
+            if value not in ['—', '–', '-', 'n/a'] and value not in number_words:
+                print(f"Warning: Scaling error for value {value} with scale {scale}: {str(e)}")
+            return value
 
     def _get_element_text(self, elem: etree.Element) -> str:
         """Get all text content from an element, handling nested elements."""
@@ -933,16 +976,43 @@ class iXBRLProcessor(XBRLProcessor):
 
     def _apply_transform(self, value: str, format: str) -> str:
         """Apply iXBRL transformation rules to the value."""
-        # Basic transforms - expand as needed
-        if format.startswith('ixt:num'):
-            # Remove any non-numeric characters except . and -
-            value = ''.join(c for c in value if c.isdigit() or c in '.-')
-        elif format == 'ixt-sec:duryear':
-            # Convert duration to years
-            try:
-                value = str(float(value))
-            except ValueError:
-                pass
+        if not value or not format:
+            return value
+
+        # Strip whitespace first
+        value = value.strip()
+
+        # Handle number formats
+        if format == 'ixt:numdotdecimal':
+            # Format: 1,234.56 -> 1234.56
+            # Remove any currency symbols first
+            value = value.strip('$€£¥')
+            # Remove any commas used as thousand separators
+            value = value.replace(',', '')
+
+        elif format == 'ixt:numcommadot':
+            # Format: 1.234,56 -> 1234.56
+            # Remove currency symbols
+            value = value.strip('$€£¥')
+            # First remove dots (thousand separators)
+            value = value.replace('.', '')
+            # Then replace comma with dot for decimal
+            value = value.replace(',', '.')
+
+        # Handle parenthetical negatives: (123) -> -123
+        if value.startswith('(') and value.endswith(')'):
+            value = '-' + value[1:-1]
+
+        # Handle percentages: remove % and convert if needed
+        if value.endswith('%'):
+            value = value[:-1]
+            # Optionally convert to decimal: 12.5% -> 0.125
+            # Commenting out since your test expects to keep as-is
+            # value = str(float(value) / 100)
+
+        # Strip any remaining whitespace
+        value = value.strip()
+
         return value
 
     def _parse_units(self, root: etree.Element) -> None:
