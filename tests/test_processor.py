@@ -4,7 +4,10 @@ from datetime import datetime
 import shutil
 from decimal import Decimal
 from lxml import etree
-from processor import XBRLProcessor, XBRLContext, XBRLUnit, XBRLFact, XBRLFolderProcessor, iXBRLProcessor
+from processor import XBRLProcessor
+from inline_processor import iXBRLProcessor
+from folder_processor import  XBRLFolderProcessor
+from models import  XBRLContext, XBRLUnit, XBRLFact
 
 
 @pytest.fixture

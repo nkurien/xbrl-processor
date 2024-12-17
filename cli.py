@@ -1,7 +1,8 @@
 # cli.py
 import argparse
 from pathlib import Path
-from processor import XBRLProcessor, XBRLFolderProcessor
+from processor import XBRLProcessor
+from folder_processor import XBRLFolderProcessor
 
 
 def main():
