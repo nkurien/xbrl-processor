@@ -8,6 +8,7 @@ from processor import XBRLProcessor
 from inline_processor import iXBRLProcessor
 from folder_processor import  XBRLFolderProcessor
 from models import  XBRLContext, XBRLUnit, XBRLFact
+from calculation_validator import CalculationValidator, CalculationRelationship
 
 
 @pytest.fixture
@@ -106,15 +107,27 @@ def test_validation(processor, sample_contexts):
     # Run validation
     errors = processor.validate()
 
+    # Get both errors and warnings (from stdout)
+    import io
+    import sys
+    stdout = io.StringIO()
+    sys.stdout = stdout
+    processor.validate()
+    sys.stdout = sys.__stdout__
+    output = stdout.getvalue()
+
     # Verify specific error messages
     error_texts = '\n'.join(errors)
+    warning_texts = output
+
+    # Check required validations are present
     assert 'missing context' in error_texts.lower()
     assert 'missing unit' in error_texts.lower()
-    assert any('numeric' in err.lower() and 'unit' in err.lower() for err in errors)
+    assert ('numeric' in warning_texts.lower() and 'unit' in warning_texts.lower()), \
+        "Should warn about non-numeric fact with unit reference"
 
-    # Count errors
-    assert len(errors) == 3, "Should find exactly 3 validation errors"
-
+    # Count errors - should have exactly 3
+    assert len(errors) == 2, f"Expected 2 errors but got {len(errors)}:\n{error_texts}"
 
 def test_context_periods(processor):
     """Test comprehensive context period handling."""
@@ -557,3 +570,346 @@ def test_nested_ixbrl_facts(ixbrl_processor):
     assert len(facts) == 3
     concepts = {f.concept for f in facts}
     assert concepts == {'test:total', 'test:part1', 'test:part2'}
+
+
+@pytest.fixture
+def validator():
+    return CalculationValidator()
+
+
+@pytest.fixture
+def sample_calculation_xml():
+    """Create a sample calculation linkbase file."""
+    return """<?xml version="1.0" encoding="UTF-8"?>
+<link:linkbase xmlns:link="http://www.xbrl.org/2003/linkbase" 
+               xmlns:xlink="http://www.w3.org/1999/xlink">
+    <link:roleRef roleURI="http://example.com/roles/net-income" 
+                  xlink:type="simple" 
+                  xlink:href="roles.xsd#net-income" 
+                  xlink:label="net-income"/>
+    <link:calculationLink xlink:type="extended" 
+                         xlink:role="http://example.com/roles/net-income">
+        <link:loc xlink:type="locator" 
+                 xlink:href="schema.xsd#NetIncome" 
+                 xlink:label="net_income"/>
+        <link:loc xlink:type="locator" 
+                 xlink:href="schema.xsd#Revenue" 
+                 xlink:label="revenue"/>
+        <link:loc xlink:type="locator" 
+                 xlink:href="schema.xsd#Expenses" 
+                 xlink:label="expenses"/>
+        <link:calculationArc xlink:type="arc" 
+                            xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item"
+                            xlink:from="net_income" 
+                            xlink:to="revenue" 
+                            weight="1" 
+                            order="1"/>
+        <link:calculationArc xlink:type="arc" 
+                            xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item"
+                            xlink:from="net_income" 
+                            xlink:to="expenses" 
+                            weight="-1" 
+                            order="2"/>
+    </link:calculationLink>
+</link:linkbase>
+"""
+
+
+def test_load_calculation_linkbase(validator, sample_calculation_xml, tmp_path):
+    # Create temporary calculation file
+    calc_file = tmp_path / "calculation.xml"
+    calc_file.write_text(sample_calculation_xml)
+
+    # Load the calculation linkbase
+    validator.load_calculation_linkbase(str(calc_file))
+
+    # Verify roles were loaded
+    assert "http://example.com/roles/net-income" in validator.calculation_roles
+
+    # Verify relationships were loaded
+    assert "NetIncome" in validator.calc_relationships
+    relationships = validator.calc_relationships["NetIncome"]
+    assert len(relationships) == 2
+
+    # Check specific relationship details
+    revenue_rel = next(r for r in relationships if r.child == "Revenue")
+    expenses_rel = next(r for r in relationships if r.child == "Expenses")
+
+    assert revenue_rel.weight == Decimal("1")
+    assert expenses_rel.weight == Decimal("-1")
+    assert revenue_rel.order < expenses_rel.order
+
+
+def test_validate_calculations(validator):
+    # Set up some test relationships
+    validator.calc_relationships["NetIncome"] = [
+        CalculationRelationship(
+            parent="NetIncome",
+            child="Revenue",
+            weight=Decimal("1"),
+            order=1,
+            role="http://example.com/roles/net-income"
+        ),
+        CalculationRelationship(
+            parent="NetIncome",
+            child="Expenses",
+            weight=Decimal("-1"),
+            order=2,
+            role="http://example.com/roles/net-income"
+        )
+    ]
+
+    # Test valid calculations
+    facts = {
+        "2024": {
+            "NetIncome": Decimal("500"),
+            "Revenue": Decimal("1000"),
+            "Expenses": Decimal("500")
+        }
+    }
+    errors = validator.validate_calculations(facts)
+    assert not errors, "Valid calculations should not produce errors"
+
+    # Test invalid calculations
+    facts = {
+        "2024": {
+            "NetIncome": Decimal("400"),  # Should be 500
+            "Revenue": Decimal("1000"),
+            "Expenses": Decimal("500")
+        }
+    }
+    errors = validator.validate_calculations(facts)
+    assert errors, "Invalid calculations should produce errors"
+    assert "Expected 500" in errors[0]
+
+
+def test_calculation_network(validator):
+    # Set up test relationships
+    validator.calc_relationships["GrossProfit"] = [
+        CalculationRelationship(
+            parent="GrossProfit",
+            child="Revenue",
+            weight=Decimal("1"),
+            order=1,
+            role="http://example.com/roles/gross-profit"
+        ),
+        CalculationRelationship(
+            parent="GrossProfit",
+            child="CostOfSales",
+            weight=Decimal("-1"),
+            order=2,
+            role="http://example.com/roles/gross-profit"
+        )
+    ]
+
+    network = validator.get_calculation_network()
+    assert "GrossProfit" in network
+    assert len(network["GrossProfit"]) == 2
+    assert ("Revenue", Decimal("1")) in network["GrossProfit"]
+    assert ("CostOfSales", Decimal("-1")) in network["GrossProfit"]
+
+    roots = validator.get_calculation_roots()
+    assert "GrossProfit" in roots
+    assert "Revenue" not in roots
+    assert "CostOfSales" not in roots
+
+
+def test_rounding_precision(validator):
+    # Set up test relationships
+    validator.calc_relationships["Total"] = [
+        CalculationRelationship(
+            parent="Total",
+            child="Value1",
+            weight=Decimal("1"),
+            order=1,
+            role="http://example.com/roles/test"
+        ),
+        CalculationRelationship(
+            parent="Total",
+            child="Value2",
+            weight=Decimal("1"),
+            order=2,
+            role="http://example.com/roles/test"
+        )
+    ]
+
+    # Test with small rounding differences
+    facts = {
+        "ctx1": {
+            "Total": Decimal("100.001"),
+            "Value1": Decimal("50.0"),
+            "Value2": Decimal("50.0")
+        }
+    }
+
+    errors = validator.validate_calculations(facts)
+    assert not errors, "Small rounding differences should be tolerated"
+
+
+def test_calculation_integration(processor, tmp_path):
+    """Test integration of calculation validation in the main processor."""
+    # Create test calculation linkbase
+    calc_xml = """<?xml version="1.0" encoding="UTF-8"?>
+    <link:linkbase xmlns:link="http://www.xbrl.org/2003/linkbase" 
+                   xmlns:xlink="http://www.w3.org/1999/xlink">
+        <link:calculationLink xlink:type="extended" 
+                             xlink:role="http://example.com/role/net-income">
+            <link:loc xlink:type="locator" 
+                     xlink:href="schema.xsd#NetIncome" 
+                     xlink:label="net_income"/>
+            <link:loc xlink:type="locator" 
+                     xlink:href="schema.xsd#Revenue" 
+                     xlink:label="revenue"/>
+            <link:loc xlink:type="locator" 
+                     xlink:href="schema.xsd#Expenses" 
+                     xlink:label="expenses"/>
+            <link:calculationArc xlink:type="arc" 
+                                xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item"
+                                xlink:from="net_income" 
+                                xlink:to="revenue" 
+                                weight="1"/>
+            <link:calculationArc xlink:type="arc" 
+                                xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item"
+                                xlink:from="net_income" 
+                                xlink:to="expenses" 
+                                weight="-1"/>
+        </link:calculationLink>
+    </link:linkbase>
+    """
+
+    calc_file = tmp_path / "calculation.xml"
+    calc_file.write_text(calc_xml)
+
+    # Load the calculation linkbase
+    processor.calculation_tree = etree.parse(str(calc_file))
+    processor._process_calculation_links()
+
+    # Add test facts
+    test_context = XBRLContext(
+        id="ctx1",
+        entity="test",
+        period_start=datetime(2024, 1, 1),
+        period_end=datetime(2024, 12, 31)
+    )
+    processor.contexts["ctx1"] = test_context
+
+    processor.facts = [
+        XBRLFact(concept="NetIncome", value=500, context_ref="ctx1"),
+        XBRLFact(concept="Revenue", value=1000, context_ref="ctx1"),
+        XBRLFact(concept="Expenses", value=500, context_ref="ctx1")
+    ]
+
+    # Test validation
+    errors = processor.validate_calculations()
+    assert not errors, "Valid calculations should not produce errors"
+
+    # Test with invalid calculations
+    processor.facts[0].value = 400  # Change NetIncome to invalid value
+    errors = processor.validate_calculations()
+    assert errors, "Invalid calculations should produce errors"
+
+    # Test calculation summary
+    summary = processor.get_calculation_summary()
+    assert summary, "Should generate calculation summary"
+    assert any("NetIncome" in str(s) for s in summary.values()), "Summary should include NetIncome"
+
+
+def test_calculation_with_missing_facts(processor, tmp_path):
+    """Test calculation validation with missing facts."""
+    # Create and load minimal calculation linkbase
+    calc_xml = """<?xml version="1.0" encoding="UTF-8"?>
+    <link:linkbase xmlns:link="http://www.xbrl.org/2003/linkbase" 
+                   xmlns:xlink="http://www.w3.org/1999/xlink">
+        <link:calculationLink xlink:type="extended" 
+                             xlink:role="http://example.com/role/test">
+            <link:loc xlink:type="locator" 
+                     xlink:href="schema.xsd#Total" 
+                     xlink:label="total"/>
+            <link:loc xlink:type="locator" 
+                     xlink:href="schema.xsd#Part1" 
+                     xlink:label="part1"/>
+            <link:loc xlink:type="locator" 
+                     xlink:href="schema.xsd#Part2" 
+                     xlink:label="part2"/>
+            <link:calculationArc xlink:type="arc" 
+                                xlink:from="total" 
+                                xlink:to="part1" 
+                                weight="1"/>
+            <link:calculationArc xlink:type="arc" 
+                                xlink:from="total" 
+                                xlink:to="part2" 
+                                weight="1"/>
+        </link:calculationLink>
+    </link:linkbase>
+    """
+
+    calc_file = tmp_path / "calculation.xml"
+    calc_file.write_text(calc_xml)
+
+    processor.calculation_tree = etree.parse(str(calc_file))
+    processor._process_calculation_links()
+
+    # Add test context
+    processor.contexts["ctx1"] = XBRLContext(
+        id="ctx1",
+        entity="test",
+        instant=datetime(2024, 12, 31)
+    )
+
+    # Add incomplete facts
+    processor.facts = [
+        XBRLFact(concept="Total", value=100, context_ref="ctx1"),
+        XBRLFact(concept="Part1", value=60, context_ref="ctx1")
+        # Part2 is missing
+    ]
+
+    # Validate calculations
+    errors = processor.validate_calculations()
+    assert errors, "Should report error for missing fact"
+    assert any("missing" in err.lower() for err in errors), "Error should mention missing fact"
+
+
+def test_calculation_with_non_numeric_facts(processor, tmp_path):
+    """Test calculation validation handling of non-numeric facts."""
+    # Create and load minimal calculation linkbase
+    calc_xml = """<?xml version="1.0" encoding="UTF-8"?>
+    <link:linkbase xmlns:link="http://www.xbrl.org/2003/linkbase" 
+                   xmlns:xlink="http://www.w3.org/1999/xlink">
+        <link:calculationLink xlink:type="extended" 
+                             xlink:role="http://example.com/role/test">
+            <link:loc xlink:type="locator" 
+                     xlink:href="schema.xsd#Total" 
+                     xlink:label="total"/>
+            <link:loc xlink:type="locator" 
+                     xlink:href="schema.xsd#Part1" 
+                     xlink:label="part1"/>
+            <link:calculationArc xlink:type="arc" 
+                                xlink:from="total" 
+                                xlink:to="part1" 
+                                weight="1"/>
+        </link:calculationLink>
+    </link:linkbase>
+    """
+
+    calc_file = tmp_path / "calculation.xml"
+    calc_file.write_text(calc_xml)
+
+    processor.calculation_tree = etree.parse(str(calc_file))
+    processor._process_calculation_links()
+
+    # Add test context
+    processor.contexts["ctx1"] = XBRLContext(
+        id="ctx1",
+        entity="test",
+        instant=datetime(2024, 12, 31)
+    )
+
+    # Add facts including non-numeric
+    processor.facts = [
+        XBRLFact(concept="Total", value=100, context_ref="ctx1"),
+        XBRLFact(concept="Part1", value="Not a number", context_ref="ctx1")
+    ]
+
+    # Validate calculations
+    errors = processor.validate_calculations()
+    assert errors, "Should handle non-numeric facts gracefully"

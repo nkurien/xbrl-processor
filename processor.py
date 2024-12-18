@@ -1,12 +1,13 @@
 # xbrl_processor.py
 from models import XBRLContext, XBRLUnit, XBRLFact
+from calculation_validator import CalculationValidator
 from typing import Dict, List, Optional, Any
 from pathlib import Path
 from datetime import datetime
 from lxml import etree
 import pandas as pd
 import json
-
+from decimal import Decimal, InvalidOperation
 
 class XBRLProcessor:
     def __init__(self):
@@ -433,37 +434,160 @@ class XBRLProcessor:
         """Process calculation relationships from the calculation linkbase."""
         if self.calculation_tree is None:
             return
-            
-        # Implementation will go here - we'll add this in the next iteration
-        pass
+
+        # Initialize calculation validator if not already done
+        if not hasattr(self, 'calculation_validator'):
+            self.calculation_validator = CalculationValidator()
+
+        # Extract root node for parsing
+        root = self.calculation_tree.getroot()
+
+        # Add any missing namespaces
+        for prefix, uri in root.nsmap.items():
+            if prefix is not None:  # Skip default namespace
+                self.namespaces[prefix] = uri
+                self.calculation_validator.namespaces[prefix] = uri
+
+        # Parse calculation relationships - pass the ElementTree directly
+        self.calculation_validator.load_calculation_linkbase(self.calculation_tree)
+
+    def validate_calculations(self) -> List[str]:
+        """Validate all calculations in the document."""
+        if not hasattr(self, 'calculation_validator'):
+            return ["No calculation relationships loaded"]
+
+        # Organize facts by context
+        facts_by_context: Dict[str, Dict[str, Decimal]] = {}
+
+        for fact in self.facts:
+            if fact.context_ref and fact.value is not None:
+                try:
+                    # Convert value to Decimal for calculation
+                    if isinstance(fact.value, (int, float)):
+                        decimal_value = Decimal(str(fact.value))
+
+                        # Initialize context dict if needed
+                        if fact.context_ref not in facts_by_context:
+                            facts_by_context[fact.context_ref] = {}
+
+                        # Store fact value
+                        facts_by_context[fact.context_ref][fact.concept] = decimal_value
+                except (ValueError, TypeError, InvalidOperation) as e:
+                    print(f"Warning: Could not convert value for {fact.concept}: {e}")
+
+        # Validate calculations using the validator
+        return self.calculation_validator.validate_calculations(facts_by_context)
+
+    def get_calculation_summary(self) -> Dict[str, List[str]]:
+        """Get a human-readable summary of calculation relationships."""
+        if not hasattr(self, 'calculation_validator'):
+            return {}
+
+        summary: Dict[str, List[str]] = {}
+
+        # Get all calculation networks organized by role
+        networks = self.calculation_validator.get_all_calculation_networks()
+
+        for role, network in networks.items():
+            calc_items: List[str] = []
+
+            # Format role description if available
+            role_desc = self.calculation_validator.calculation_roles.get(role, role)
+            calc_items.append(f"Role: {role_desc}")
+
+            # Add calculation relationships
+            for parent, children in network.items():
+                calc_items.append(f"\n{parent}:")
+                for child, weight in sorted(children):  # Sort for consistent output
+                    sign = '+' if weight > 0 else '-'
+                    calc_items.append(f"  {sign} {child}")
+
+            summary[role] = calc_items
+
+        return summary
 
     def validate(self) -> List[str]:
-        """Perform validation checks."""
+        """Perform all validation checks including calculations."""
         errors = []
+        warnings = []
 
-        # Context reference validation
-        for fact in self.facts:
+        text_block_patterns = ['TextBlock', 'Policy', 'Policies', 'Disclosure']
+        unitless_numeric_patterns = [
+            'PostalZipCode', 'AreaCode', 'Duration', 'FiscalYear', 'FiscalPeriod',
+            'CentralIndexKey', 'WeightedAverageUsefulLife', 'RemainingLeaseTerm',
+            'DebtInstrumentTerm', 'Term', 'Period', 'ContractDuration',
+            'TimeRemaining', 'MaximumLengthOfTime'
+        ]
+
+        always_numeric_concepts = [
+            'Debt', 'Stock', 'Value', 'Amount', 'Balance', 'Cash',
+            'Revenue', 'Income', 'Loss', 'Gain', 'Cost', 'Tax',
+            'Asset', 'Liability', 'Equity', 'Shares', 'Price',
+            'Rate', 'Percentage', 'Interest', 'Payment', 'Proceeds',
+            'Investment', 'Compensation', 'Expense', 'FairValue',
+            'OtherComprehensiveIncome'
+        ]
+
+        for fact_index, fact in enumerate(self.facts):
+            location = f"Fact #{fact_index + 1}"
+
+            # Context validation
             if fact.context_ref not in self.contexts:
-                errors.append(
-                    f"Fact {fact.concept} references missing context {fact.context_ref}"
-                )
+                errors.append(f"[{location}] Fact {fact.concept} references missing context {fact.context_ref}")
 
-            # Unit validation for numeric facts
-            if isinstance(fact.value, (int, float)):
-                if not fact.unit_ref:
-                    errors.append(
-                        f"Numeric fact {fact.concept} missing required unit reference"
-                    )
-                elif fact.unit_ref not in self.units:
-                    errors.append(
-                        f"Fact {fact.concept} references missing unit {fact.unit_ref}"
-                    )
+            # Skip text blocks
+            if any(pattern in fact.concept for pattern in text_block_patterns):
+                continue
+
+            # Determine numeric status
+            is_numeric = isinstance(fact.value, (int, float))
+            should_have_unit = False
+
+            if isinstance(fact.value, str):
+                # Try to convert string to number
+                try:
+                    float(fact.value.replace(',', ''))
+                    is_numeric = True
+                except ValueError:
+                    pass
+
+                # Check if concept should be numeric
+                should_be_numeric = (
+                        any(indicator in fact.concept for indicator in always_numeric_concepts) and
+                        not fact.value.startswith(('http://', 'https://'))
+                )
             else:
-                # Non-numeric facts should not have unit references
-                if fact.unit_ref:
-                    errors.append(
-                        f"Non-numeric fact {fact.concept} should not have unit reference"
-                    )
+                # For non-string values, only check numeric indicators
+                should_be_numeric = any(indicator in fact.concept for indicator in always_numeric_concepts)
+
+            # Determine unit requirements
+            if is_numeric and not any(pattern in fact.concept for pattern in unitless_numeric_patterns):
+                should_have_unit = True
+
+            # Validate units
+            if should_have_unit:
+                if not fact.unit_ref:
+                    errors.append(f"[{location}] Numeric fact {fact.concept} missing required unit reference")
+                elif fact.unit_ref not in self.units:
+                    errors.append(f"[{location}] Fact {fact.concept} references missing unit {fact.unit_ref}")
+            elif fact.unit_ref and not should_be_numeric:
+                warnings.append(f"[{location}] Non-numeric fact {fact.concept} has unit reference")
+
+            # Flag numeric concept type mismatches
+            if should_be_numeric and not is_numeric:
+                warnings.append(f"[{location}] Fact {fact.concept} appears to be numeric but has value '{fact.value}'")
+
+        # Add calculation validation
+        if hasattr(self, 'calculation_validator'):
+            calc_errors = self.validate_calculations()
+            if calc_errors:
+                errors.extend(calc_errors)
+
+        # Print warnings
+        if warnings:
+            print("\nValidation Warnings:")
+            for warning in warnings:
+                print(f"- {warning}")
 
         return errors
 
