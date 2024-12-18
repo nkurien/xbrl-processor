@@ -4,11 +4,11 @@ from datetime import datetime
 import shutil
 from decimal import Decimal
 from lxml import etree
-from processor import XBRLProcessor
-from inline_processor import iXBRLProcessor
-from folder_processor import  XBRLFolderProcessor
-from models import  XBRLContext, XBRLUnit, XBRLFact
-from calculation_validator import CalculationValidator, CalculationRelationship
+from core.models import  XBRLContext, XBRLUnit, XBRLFact
+from core.processor import XBRLProcessor
+from core.inline_processor import iXBRLProcessor
+from core.folder_processor import  XBRLFolderProcessor
+from validators.calculation_validator import CalculationValidator, CalculationRelationship
 
 
 @pytest.fixture
@@ -181,7 +181,7 @@ def test_context_periods(processor):
 def test_real_file_loading(folder_processor):
     """Test processing of real XBRL files with comprehensive validation."""
     test_dir = Path(__file__).parent.parent
-    novartis_folder = test_dir / "Novartis-2002-11-15"
+    novartis_folder = test_dir / "examples/Novartis-2002-11-15"
 
     if not novartis_folder.exists():
         pytest.skip(f"Novartis test folder not found at {novartis_folder}")
@@ -233,7 +233,7 @@ def novartis_folder(tmp_path):
     """Create a temporary test folder with Novartis files."""
     # First try the direct parent directory
     test_dir = Path(__file__).parent.parent
-    source_folder = test_dir / "Novartis-2002-11-15"
+    source_folder = test_dir / "examples/Novartis-2002-11-15"
 
     # If not found, try the same directory as the test file
     if not source_folder.exists():

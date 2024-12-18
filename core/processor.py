@@ -1,6 +1,6 @@
 # xbrl_processor.py
-from models import XBRLContext, XBRLUnit, XBRLFact
-from calculation_validator import CalculationValidator
+from core.models import XBRLContext, XBRLUnit, XBRLFact
+from validators.calculation_validator import CalculationValidator
 from typing import Dict, List, Optional, Any
 from pathlib import Path
 from datetime import datetime
@@ -368,9 +368,9 @@ class XBRLProcessor:
             datetime: The parsed datetime object
 
         Examples:
-            >>> processor._parse_date("2024-01-01")
+         //   >>> processor._parse_date("2024-01-01")
             datetime.datetime(2024, 1, 1, 0, 0)
-            >>> processor._parse_date("2024-01-01T12:00:00")
+           // >>> processor._parse_date("2024-01-01T12:00:00")
             datetime.datetime(2024, 1, 1, 12, 0)
         """
         if not date_str:

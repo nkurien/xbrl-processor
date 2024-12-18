@@ -1,5 +1,5 @@
-from processor import XBRLProcessor
-from models import XBRLContext, XBRLFact
+from core.processor import XBRLProcessor
+from core.models import XBRLContext, XBRLFact
 from typing import List, Optional
 from pathlib import Path
 from lxml import etree

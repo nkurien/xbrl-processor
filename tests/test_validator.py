@@ -4,9 +4,9 @@ import pytest
 from datetime import datetime
 from decimal import Decimal
 from pathlib import Path
-from taxonomy_validator import TaxonomyValidator, ValidationResult
-from processor import XBRLProcessor
-from models import XBRLContext, XBRLUnit, XBRLFact
+from validators.taxonomy_validator import TaxonomyValidator
+from core.processor import XBRLProcessor
+from core.models import XBRLContext, XBRLUnit, XBRLFact
 
 
 @pytest.fixture

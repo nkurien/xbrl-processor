@@ -1,6 +1,6 @@
-from processor import  XBRLProcessor
-from models import XBRLFile
-from inline_processor import iXBRLProcessor
+from core.processor import  XBRLProcessor
+from core.models import XBRLFile
+from core.inline_processor import iXBRLProcessor
 from lxml import etree
 from pathlib import Path
 from typing import Dict, List, Optional, Any
